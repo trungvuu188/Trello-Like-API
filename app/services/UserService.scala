@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class UserService @Inject()(
-                             todoRepository: UserRepository
+                             userRepository: UserRepository
                            )(implicit ec: ExecutionContext) {
 
 }
