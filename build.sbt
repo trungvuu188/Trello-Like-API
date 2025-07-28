@@ -19,5 +19,11 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
   "com.github.t3hnar" % "scala-bcrypt_2.13" % "4.3.0",
   "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+
+//  JWT
+  "com.auth0" % "java-jwt" % "4.5.0",
+// Environment variable loading
+  "io.github.cdimascio" % "dotenv-java" % "3.0.0"
 )
 
