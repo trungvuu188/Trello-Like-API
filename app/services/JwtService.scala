@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import javax.inject.{Inject, Singleton}
 import scala.util.Try
 
-case class UserToken(userId: Int, email: String)
+case class UserToken(userId: Int, name: String, email: String)
 
 object UserToken {
     implicit val format = Json.format[UserToken]
@@ -59,17 +59,18 @@ class JwtService @Inject()(config: Configuration) {
             val expiresAt = new Date(now.getTime + expiration.toMillis)
 
             JWT.create()
-                .withSubject(userToken.userId)
+                .withSubject(userToken.userId.toString)
+                .withClaim("name", userToken.name)
                 .withClaim("email", userToken.email)
                 .withIssuedAt(now)
                 .withExpiresAt(expiresAt)
                 .withIssuer(jwtConfig.issuer)
                 .sign(algorithm)
-        }.recoverWith {
+        }.recover {
             case ex: JWTCreationException =>
-                Failure(new Exception(s"Failed to create JWT token: ${ex.getMessage}"))
+                throw new Exception(s"Failed to create JWT token: ${ex.getMessage}")
             case ex =>
-                Failure(new Exception(s"Unexpected error creating token: ${ex.getMessage}"))
+                throw new Exception(s"Unexpected error creating token: ${ex.getMessage}")
         }
     }
 
@@ -83,6 +84,7 @@ class JwtService @Inject()(config: Configuration) {
 
             var userId = decodedJWT.getSubject
             var email = decodedJWT.getClaim("email").asString()
+            var name = decodedJWT.getClaim("name").asString()
 
             if (userId == null || userId.isEmpty) {
                 throw new Exception("Invalid token: missing user ID")
@@ -90,13 +92,16 @@ class JwtService @Inject()(config: Configuration) {
             if (email == null || email.isEmpty) {
                 throw new Exception("Invalid token: missing email")
             }
+            if (name == null || name.isEmpty) {
+                throw new Exception("Invalid token: missing name")
+            }
 
-            UserToken(userId, email)
-        }.recoverWith {
+            UserToken(userId.toInt, name, email)
+        }.recover {
             case ex: JWTVerificationException =>
-                Failure(new Exception(s"Token verification failed: ${ex.getMessage}"))
+                throw new Exception(s"Token verification failed: ${ex.getMessage}")
             case ex =>
-                Failure(new Exception(s"Token validation error: ${ex.getMessage}"))
+                throw new Exception(s"Token validation error: ${ex.getMessage}")
         }
     }
 

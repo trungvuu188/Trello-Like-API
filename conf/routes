@@ -6,6 +6,7 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index()
 
+
 # Authentication routes
 POST    /auth/register          controllers.AuthController.register()
 POST    /api/auth/login         controllers.AuthController.login()
@@ -13,4 +14,3 @@ POST    /api/auth/logout        controllers.AuthController.logout()
 GET     /api/auth/me            controllers.AuthController.me()
 POST    /api/auth/refresh       controllers.AuthController.refresh()
 GET     /api/auth/check         controllers.AuthController.checkAuth()
-

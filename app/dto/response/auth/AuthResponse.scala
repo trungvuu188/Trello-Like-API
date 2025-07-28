@@ -1,10 +1,11 @@
-package dto.response
+package dto.response.auth
 
 import play.api.libs.json.{Format, Json}
 
 case class AuthResponse (
-    success: Boolean,
-    message: String
+    id: Int,
+    name: String,
+    email: String,
 )
 
 object AuthResponse {
