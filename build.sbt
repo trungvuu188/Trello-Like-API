@@ -10,6 +10,7 @@ scalaVersion := "2.13.16"
 // Dependency versions
 val playSlickVersion = "6.1.1"
 val postgresVersion = "42.7.3"
+val jacksonVersion = "2.14.3"
 
 libraryDependencies ++= Seq(
   guice,
@@ -21,9 +22,27 @@ libraryDependencies ++= Seq(
   "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
 
+  // Explicitly add compatible Jackson versions
+  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
+
 //  JWT
   "com.auth0" % "java-jwt" % "4.5.0",
 // Environment variable loading
-  "io.github.cdimascio" % "dotenv-java" % "3.0.0"
+  "io.github.cdimascio" % "dotenv-java" % "3.2.0",
+)
+
+// CRITICAL: Force Jackson versions to prevent conflicts
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
 )
 

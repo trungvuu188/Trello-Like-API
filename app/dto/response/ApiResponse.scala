@@ -4,19 +4,31 @@ import play.api.libs.json._
 
 case class ApiResponse[T](
                            message: String,
-                           data: T
+                           data: Option[T] = None
                          )
 
 object ApiResponse {
-  implicit def writes[T](implicit tWrites: Writes[T]): Writes[ApiResponse[T]] = (response: ApiResponse[T]) => Json.obj(
-    "message" -> response.message,
-    "data" -> Json.toJson(response.data)
-  )
+  implicit def writes[T](implicit tWrites: Writes[T]): Writes[ApiResponse[T]] = Json.writes[ApiResponse[T]]
+  implicit def reads[T](implicit tReads: Reads[T]): Reads[ApiResponse[T]] = Json.reads[ApiResponse[T]]
 
-  // Helper methods to create quick response
-  def success[T](data: T, message: String = "Success"): ApiResponse[T] =
-    ApiResponse(message, data)
+  def success[T](message: String = "Success", data: T): ApiResponse[T] =
+    ApiResponse(message, Some(data))
 
-  def error[T](data: T, message: String = "Error"): ApiResponse[T] =
-    ApiResponse(message, data)
+  def success[T](message: String): ApiResponse[T] =
+    ApiResponse(message, None)
+
+  def successNoData(message: String = "Success"): ApiResponse[String] =
+    ApiResponse(message, None)
+
+  def error[T](message: String = "Error"): ApiResponse[T] =
+    ApiResponse(message, None)
+
+  def errorNoData(message: String = "Error"): ApiResponse[String] =
+    ApiResponse(message, None)
+
+  def withData[T](message: String, data: T): ApiResponse[T] =
+    ApiResponse(message, Some(data))
+
+  def withoutData[T](message: String): ApiResponse[T] =
+    ApiResponse(message, None)
 }

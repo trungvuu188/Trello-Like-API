@@ -7,6 +7,7 @@ import repositories.{RoleRepository, UserRepository}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import com.github.t3hnar.bcrypt._
+import dto.response.auth.AuthResponse
 
 /**
  * Service responsible for authentication-related operations.
@@ -54,5 +55,42 @@ class AuthService@Inject()(
             Future.failed(new RuntimeException("Role 'user' not found"))
         }
     }
+  }
+
+  def authenticateUser(email: String, password: String): Future[Option[UserToken]] = {
+
+    Future.successful {
+      // Mock authentication - replace with real database query
+      if (email == "user@example.com" && password == "password") {
+        Some(UserToken(
+          userId = 123,
+          name = "John Doe",
+          email = email
+        ))
+      } else if (email == "admin@example.com" && password == "admin") {
+        Some(UserToken(
+          userId = 456,
+          name = "Admin User",
+          email = email
+        ))
+      } else if (email == "jane@example.com" && password == "password123") {
+        Some(UserToken(
+          userId = 789,
+          name = "Jane Smith",
+          email = email
+        ))
+      } else {
+        None
+      }
+    }
+  }
+
+//  Convert UserToken to AuthResponse
+  def userTokenToAuthResponse(userToken: UserToken): AuthResponse = {
+    AuthResponse(
+      id = userToken.userId.toInt,
+      name = userToken.name,
+      email = userToken.email
+    )
   }
 }

@@ -1,4 +1,4 @@
-package dto.request
+package dto.request.auth
 
 import play.api.libs.json.{Format, Json}
 
