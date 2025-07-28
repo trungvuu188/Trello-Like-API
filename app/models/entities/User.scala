@@ -11,6 +11,6 @@ case class User(
                  password: String,
                  avatarUrl: Option[String] = None,
                  roleId: Option[Int] = None,
-                 createdAt: Option[LocalDateTime] = None,
-                 updatedAt: Option[LocalDateTime] = None
+                 createdAt: LocalDateTime = LocalDateTime.now(),
+                 updatedAt: LocalDateTime = LocalDateTime.now()
                )

@@ -13,8 +13,8 @@ class UserTable(tag: Tag) extends Table[User](tag, "users") {
   def password = column[String]("password")
   def avatarUrl = column[Option[String]]("avatar_url")
   def roleId = column[Option[Int]]("role_id")
-  def createdAt = column[Option[LocalDateTime]]("created_at")
-  def updatedAt = column[Option[LocalDateTime]]("updated_at")
+  def createdAt = column[LocalDateTime]("created_at")
+  def updatedAt = column[LocalDateTime]("updated_at")
 
   def * = (id.?, name, email, password, avatarUrl, roleId, createdAt, updatedAt) <> ((User.apply _).tupled, User.unapply)
 
