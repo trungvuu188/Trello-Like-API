@@ -6,7 +6,7 @@ import services.UserService
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-class UserControllerApi @Inject()(
+class UserController @Inject()(
                                 cc: ControllerComponents,
                                 userService: UserService
                               )(implicit ec: ExecutionContext) extends ApiBaseController(cc) {
