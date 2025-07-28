@@ -1,15 +1,19 @@
 package controllers
 
+import dto.request.LoginRequest
+import play.api.libs.json.{JsSuccess, Json}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import services.{CookieService, JwtService}
 import dto.request.auth.RegisterUserRequest
 import dto.response.RegisterUserResponse
-import play.api.libs.json.{JsError, JsSuccess, JsValue}
-
-import javax.inject._
-import play.api.mvc._
+import play.api.libs.json.{JsError, JsValue}
 import services.AuthService
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
+@Singleton
 /**
  * Controller responsible for handling authentication-related HTTP requests.
  *
@@ -18,9 +22,12 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param ec Execution context for asynchronous operations.
  */
 class AuthController @Inject()(
-                                cc: ControllerComponents,
                                 authService: AuthService,
-                              )(implicit ec: ExecutionContext) extends ApiBaseController(cc) {
+    cc: ControllerComponents,
+    jwtService: JwtService,
+    cookieService: CookieService,
+    authenticatedActionWithUser: AuthenticatedActionWithUser
+)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   /**
    * Handles user registration requests.
@@ -63,7 +70,30 @@ class AuthController @Inject()(
         }.toList
 
         Future.successful(apiError(Map("validation_errors" -> errors), "Invalid request data", BadRequest))
+    def login(): Action[AnyContent] = Action.async { implicit request ⇒
+        request.body.asJson match {
+            case Some(json) ⇒
+                json.validate[LoginRequest] match {
+                    case JsSuccess(loginReq, _) ⇒
+                        authenticatedActionWithUser(loginReq.email, loginReq.password) match {
+                            case Some(userToken) ⇒
+                                jwtService.generateToken(userToken) match {
+                                    case Success(token) ⇒ None
+                                    case Failure(exception) ⇒
+                                        Future.successful(
+                                            InternalServerError(Json.toJson(
+//                                                Login Response
+                                            ))
+                                        )
+                                }
+                            case None ⇒
+                                Future.successful(
+                                    Unauthorized(Json.toJson(
+//                                          Login Res
+                                    ))
+                                )
+                        }
+                }
+        }
     }
-  }
-
 }
