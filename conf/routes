@@ -8,7 +8,7 @@ GET     /                           controllers.HomeController.index()
 
 
 # Authentication routes
-POST    /auth/register          controllers.AuthController.register()
+POST    /api/auth/register      controllers.AuthController.register()
 POST    /api/auth/login         controllers.AuthController.login()
 POST    /api/auth/logout        controllers.AuthController.logout()
 GET     /api/auth/me            controllers.AuthController.me()

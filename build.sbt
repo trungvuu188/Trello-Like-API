@@ -14,11 +14,15 @@ val jacksonVersion = "2.14.3"
 
 libraryDependencies ++= Seq(
   guice,
+  caffeine,
+  filters,
+
   "org.playframework" %% "play-slick" % playSlickVersion,
   "org.playframework" %% "play-slick-evolutions" % playSlickVersion,
   "org.postgresql" % "postgresql" % postgresVersion,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
   "com.github.t3hnar" % "scala-bcrypt_2.13" % "4.3.0",
+
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
   "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
 
