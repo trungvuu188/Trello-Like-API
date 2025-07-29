@@ -32,4 +32,8 @@ class RoleRepository @Inject()(
   def findByRoleName(roleName: String): Future[Option[Role]] = {
     db.run(roles.filter(_.name === roleName).result.headOption)
   }
+
+  def findByRoleId(roleId: Int): Future[Option[Role]] = {
+    db.run(roles.filter(_.id === roleId).result.headOption)
+  }
 }

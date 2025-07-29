@@ -9,6 +9,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.github.t3hnar.bcrypt._
 import dto.response.auth.AuthResponse
 
+import scala.util.{Failure, Success}
+
 /**
  * Service responsible for authentication-related operations.
  *
@@ -48,7 +50,6 @@ class AuthService@Inject()(
               password = hashedPassword,
               roleId = role.id
             )
-
             userRepository.create(newUser)
 
           case None =>
@@ -59,30 +60,22 @@ class AuthService@Inject()(
 
   def authenticateUser(email: String, password: String): Future[Option[UserToken]] = {
 
-    Future.successful {
-      // Mock authentication - replace with real database query
-      if (email == "user@example.com" && password == "password") {
-        Some(UserToken(
-          userId = 123,
-          name = "John Doe",
-          email = email
-        ))
-      } else if (email == "admin@example.com" && password == "admin") {
-        Some(UserToken(
-          userId = 456,
-          name = "Admin User",
-          email = email
-        ))
-      } else if (email == "jane@example.com" && password == "password123") {
-        Some(UserToken(
-          userId = 789,
-          name = "Jane Smith",
-          email = email
-        ))
-      } else {
-        None
+      userRepository.findByEmail(email).map {
+        case Some(user) ⇒
+          password.isBcryptedSafeBounded(user.password) match {
+            case Success(true) ⇒
+                  Some(UserToken(
+                    userId = user.id.get,
+                    email = user.email,
+                    name = user.name
+                  ))
+            case Success(false) ⇒
+                  None
+            case Failure(_) ⇒
+                  None
+        }
+        case None ⇒ None
       }
-    }
   }
 
 //  Convert UserToken to AuthResponse
