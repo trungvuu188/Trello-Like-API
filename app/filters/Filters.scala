@@ -1,4 +1,5 @@
-import filters.{ApiAccessFilter, CorsFilter, RateLimitFilter, SecurityHeadersFilter}
+package filters
+
 import play.api.http.HttpFilters
 import play.filters.gzip.GzipFilter
 
@@ -8,7 +9,7 @@ import javax.inject.{Inject, Singleton}
 class Filters @Inject()(
     corsFilter: CorsFilter,
     securityHeadersFilter: SecurityHeadersFilter,
-    rateLimitFilter: RateLimitFilter,
+//    rateLimitFilter: RateLimitFilter,
     apiAccessFilter: ApiAccessFilter,
     gzipFilter: GzipFilter
 ) extends HttpFilters {
@@ -16,7 +17,7 @@ class Filters @Inject()(
     override val filters = Seq(
         corsFilter,           // Handle CORS first
         securityHeadersFilter, // Add security headers
-        rateLimitFilter,      // Rate limiting
+//        rateLimitFilter,      // Rate limiting
         apiAccessFilter,      // Authentication & Authorization
         gzipFilter           // Compress responses (built-in Play filter)
     )
