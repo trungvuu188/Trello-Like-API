@@ -23,4 +23,5 @@ class RoleService @Inject()(
             }
         } yield role.map(_.name)
     }
+
 }

@@ -1,7 +1,8 @@
 package services
 
-import play.api.mvc.{Cookie, Request, Result}
+import play.api.mvc.{Cookie, Request, RequestHeader, Result}
 import play.api.Configuration
+
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -46,7 +47,7 @@ class CookieService @Inject()(config: Configuration) {
         )
     }
 
-    def getTokenFromRequest[A](request: Request[A]): Option[String] = {
+    def getTokenFromRequest(request: RequestHeader): Option[String] = {
         request.cookies.get(cookieName).map(_.value).filter(_.nonEmpty)
     }
 

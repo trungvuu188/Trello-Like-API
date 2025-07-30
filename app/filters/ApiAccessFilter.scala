@@ -3,12 +3,14 @@ package filters
 import play.api.Configuration
 import play.api.mvc._
 import play.api.libs.json.Json
-import services.{CookieService, JwtService, RoleService}
+import services.{CookieService, JwtService, RoleService, UserToken}
 import dto.response.ApiResponse
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.util.ByteString
 import play.api.libs.streams.Accumulator
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -17,12 +19,13 @@ class ApiAccessFilter @Inject()(
     jwtService: JwtService,
     cookieService: CookieService,
     roleService: RoleService,
-    implicit val ec: ExecutionContext
+    implicit val ec: ExecutionContext,
+    implicit val mat: Materializer
 ) extends EssentialFilter {
 
     private val publicEndpoints = config.get[Seq[String]]("api.publicEndpoints")
     private val adminEndpoints = config.get[Seq[String]]("api.adminEndpoints")
-    private val userEndpoints = config.get[Seq[String]]("api.userEndpoints")
+//    private val userEndpoints = config.get[Seq[String]]("api.userEndpoints")
 
     def apply(next: EssentialAction): EssentialAction = EssentialAction { request =>
         val path = request.path
@@ -39,31 +42,55 @@ class ApiAccessFilter @Inject()(
                 case Some(token) =>
                     jwtService.validateToken(token) match {
                         case Success(userToken) =>
-                            // Check authorization based on endpoint type
                             if (isAdminEndpoint(path)) {
-                                val userId = userToken.userId.toInt
-                                val adminCheckFuture = roleService.getUserRole(userId)
-
-
+                                checkAdminAccess(userToken, next, request)
                             } else {
-                                // User is authenticated and authorized
                                 next(request)
                             }
                         case Failure(_) =>
-                            play.api.libs.streams.Accumulator.done(
+                            Accumulator.done(
                                 Results.Unauthorized(Json.toJson(
                                     ApiResponse.errorNoData("Invalid or expired token")
                                 )).withCookies(cookieService.createExpiredAuthCookie())
                             )
                     }
                 case None =>
-                    play.api.libs.streams.Accumulator.done(
+                    Accumulator.done(
                         Results.Unauthorized(Json.toJson(
                             ApiResponse.errorNoData("Authentication required")
                         ))
                     )
             }
         }
+    }
+
+    private def checkAdminAccess(
+        userToken: UserToken,
+        next: EssentialAction,
+        request: RequestHeader
+    ): Accumulator[ByteString, Result] = {
+        val userId = userToken.userId
+        val userRoleFuture = roleService.getUserRole(userId)
+
+        Accumulator.flatten(
+            userRoleFuture.map {
+                case Some("admin") =>
+                    next(request)
+                case _ =>
+                    Accumulator.done(
+                        Results.Forbidden(Json.toJson(
+                            ApiResponse.errorNoData("Admin access required")
+                        ))
+                    )
+            }.recover {
+                case ex: Exception =>
+                    Accumulator.done(
+                        Results.InternalServerError(Json.toJson(
+                            ApiResponse.errorNoData("Authentication check failed")
+                        ))
+                    )
+            }
+        )
     }
 
     private def isPublicEndpoint(path: String): Boolean = {
