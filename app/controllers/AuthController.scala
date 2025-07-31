@@ -1,13 +1,12 @@
 package controllers
 
 import play.api.libs.json.{JsSuccess, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import services.{CookieService, JwtService}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Request, Result, Results}
+import services.{AuthService, CookieService, JwtService, RoleService, UserToken}
 import dto.request.auth.{LoginRequest, RegisterUserRequest}
 import dto.response.ApiResponse
 import dto.response.auth.AuthResponse
 import play.api.libs.json.{JsError, JsValue}
-import services.AuthService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +25,7 @@ class AuthController @Inject()(
     cc: ControllerComponents,
     jwtService: JwtService,
     cookieService: CookieService,
+    roleService: RoleService,
     authenticatedActionWithUser: AuthenticatedActionWithUser
 )(implicit ec: ExecutionContext) extends ApiBaseController(cc) {
 
@@ -65,48 +65,24 @@ class AuthController @Inject()(
       }
   }
     def login(): Action[AnyContent] = Action.async { implicit request ⇒
-        request.body.asJson match {
-            case Some(json) ⇒
-                json.validate[LoginRequest] match {
-                    case JsSuccess(loginReq, _) ⇒
-                        authService.authenticateUser(loginReq.email, loginReq.password).flatMap {
-                            case Some(userToken) ⇒
-                                jwtService.generateToken(userToken) match {
-                                    case Success(token) ⇒
-                                        val authResponse = authService.userTokenToAuthResponse(userToken)
-                                        val apiResponse = ApiResponse.success("Login successful", authResponse)
-
-                                        Future.successful(
-                                            Ok(Json.toJson(apiResponse))
-                                                .withCookies(cookieService.createAuthCookie(token))
-                                        )
-                                    case Failure(exception) ⇒
-                                        val apiResponse = ApiResponse.error[AuthResponse](s"Token generation failed: ${exception.getMessage}")
-                                        Future.successful(InternalServerError(Json.toJson(apiResponse)))
-                                }
-                            case None ⇒
-                                val apiResponse = ApiResponse.error[AuthResponse](s"Invalid email or password")
-                                Future.successful(Unauthorized(Json.toJson(apiResponse)))
-                        }
-                    case JsError(errors) ⇒
-                        val apiResponse = ApiResponse.error[AuthResponse]("Invalid request format. Please provide email and password")
-                        Future.successful(BadRequest(Json.toJson(apiResponse)))
-                }
-            case None ⇒
-                val apiResponse = ApiResponse.error[AuthResponse]("JSON body required")
-                Future.successful(BadRequest(Json.toJson(apiResponse)))
-        }
+        parseLoginRequest(request.body).fold(
+            error ⇒ Future.successful(BadRequest(Json.toJson(ApiResponse.error[AuthResponse](error)))),
+            loginReq ⇒ handleLogin(loginReq)
+        )
     }
+
     def logout(): Action[AnyContent] = Action { implicit request ⇒
         val apiResponse = ApiResponse.success[String]("Logged out successfully")
         Ok(Json.toJson(apiResponse))
             .withCookies(cookieService.createExpiredAuthCookie())
     }
+
     def me(): Action[AnyContent] = authenticatedActionWithUser { implicit request =>
         val authResponse = authService.userTokenToAuthResponse(request.userToken)
         val apiResponse = ApiResponse.success("User information retrieved", authResponse)
         Ok(Json.toJson(apiResponse))
     }
+
     def refresh(): Action[AnyContent] = authenticatedActionWithUser { implicit request =>
         jwtService.refreshToken(request.userToken) match {
             case Success(newToken) =>
@@ -121,21 +97,72 @@ class AuthController @Inject()(
         }
     }
 
-    def checkAuth(): Action[AnyContent] = Action { implicit request =>
+    def checkAuth(): Action[AnyContent] = Action.async { implicit request =>
+        withAuthenticatedUserAsync(request) { userToken ⇒
+            val authResponse = authService.userTokenToAuthResponse(userToken)
+            val apiResponse = ApiResponse.success("User is authenticated", authResponse)
+            Future.successful(Ok(Json.toJson(apiResponse)))
+        }
+    }
+
+    def roleRetrieve(): Action[AnyContent] = Action.async { implicit request ⇒
+        withAuthenticatedUserAsync(request) { userToken ⇒
+            roleService.getUserRole(userToken.userId).map {
+                case Some(role) ⇒
+                    val apiResponse = ApiResponse.success("User is authenticated", role)
+                    Ok(Json.toJson(apiResponse))
+
+                case None ⇒
+                    val apiResponse = ApiResponse.error[String]("No role found")
+                    NotFound(Json.toJson(apiResponse))
+            }
+        }
+    }
+
+    private def withAuthenticatedUserAsync[A](request: Request[A])
+                                        (block: UserToken ⇒ Future[Result]): Future[Result] = {
         cookieService.getTokenFromRequest(request) match {
-            case Some(token) =>
+            case Some(token) ⇒
                 jwtService.validateToken(token) match {
-                    case Success(userToken) =>
-                        val authResponse = authService.userTokenToAuthResponse(userToken)
-                        val apiResponse = ApiResponse.success("User is authenticated", authResponse)
-                        Ok(Json.toJson(apiResponse))
-                    case Failure(_) =>
+                    case Success(userToken) ⇒ block(userToken)
+                    case Failure(_) ⇒
                         val apiResponse = ApiResponse.error[AuthResponse]("Invalid or expired token")
-                        Unauthorized(Json.toJson(apiResponse))
+                        Future.successful(Unauthorized(Json.toJson(apiResponse)))
                 }
-            case None =>
+            case None ⇒
                 val apiResponse = ApiResponse.error[AuthResponse]("No authentication token found")
-                Unauthorized(Json.toJson(apiResponse))
+                Future.successful(Unauthorized(Json.toJson(apiResponse)))
+        }
+    }
+
+    private def parseLoginRequest(body: AnyContent): Either[String, LoginRequest] = {
+        body.asJson match {
+            case Some(json) ⇒
+                json.validate[LoginRequest] match {
+                    case JsSuccess(loginReq, _) ⇒ Right(loginReq)
+                    case JsError(_)             ⇒ Left("Invalid request format. Please provide email and password")
+                }
+            case None ⇒ Left("JSON body required")
+        }
+    }
+
+    private def handleLogin(loginReq: LoginRequest): Future[Result] = {
+        authService.authenticateUser(loginReq.email, loginReq.password).flatMap {
+            case Some(userToken) ⇒
+                jwtService.generateToken(userToken) match {
+                    case Success(token) ⇒
+                        val authResponse = authService.userTokenToAuthResponse(userToken)
+                        val apiResponse = ApiResponse.success("Login successful", authResponse)
+                        Future.successful(Ok(Json.toJson(apiResponse)).withCookies(cookieService.createAuthCookie(token)))
+
+                    case Failure(exception) ⇒
+                        val apiResponse = ApiResponse.error[AuthResponse](s"Token generation failed: ${exception.getMessage}")
+                        Future.successful(InternalServerError(Json.toJson(apiResponse)))
+                }
+
+            case None ⇒
+                val apiResponse = ApiResponse.error[AuthResponse]("Invalid email or password")
+                Future.successful(Unauthorized(Json.toJson(apiResponse)))
         }
     }
 }

@@ -9,7 +9,6 @@ import javax.inject.{Inject, Singleton}
 class Filters @Inject()(
     corsFilter: CorsFilter,
     securityHeadersFilter: SecurityHeadersFilter,
-//    rateLimitFilter: RateLimitFilter,
     apiAccessFilter: ApiAccessFilter,
     gzipFilter: GzipFilter
 ) extends HttpFilters {
@@ -17,7 +16,6 @@ class Filters @Inject()(
     override val filters = Seq(
         corsFilter,           // Handle CORS first
         securityHeadersFilter, // Add security headers
-//        rateLimitFilter,      // Rate limiting
         apiAccessFilter,      // Authentication & Authorization
         gzipFilter           // Compress responses (built-in Play filter)
     )
