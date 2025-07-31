@@ -9,7 +9,7 @@ import org.scalatestplus.play._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test._
-import services.AuthService
+import services.{AuthService, CookieService, JwtService}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,15 +18,27 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
+  private def createController(
+                                mockService: AuthService = mock[AuthService]
+                              ): (AuthController, AuthService) = {
+    val mockJwtService = mock[JwtService]
+    val mockCookieService = mock[CookieService]
+    val mockAuthenticatedActionWithUser = mock[AuthenticatedActionWithUser]
+
+    val controller = new AuthController(
+      mockService,
+      stubControllerComponents(),
+      mockJwtService,
+      mockCookieService,
+      mockAuthenticatedActionWithUser
+    )
+
+    (controller, mockService)
+  }
+
   "register" should {
     "return 201 Created with valid input" in {
-      val mockService = mock[AuthService]
-
-      val controller = new AuthController(
-        stubControllerComponents(),
-        mockService
-      )(ec)
-
+      val (controller, mockService) = createController()
       val requestJson = Json.obj(
         "name" -> "John",
         "email" -> "john@example.com",
@@ -49,9 +61,7 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
     }
 
     "return 400 BadRequest when input is invalid (missing name)" in {
-      val mockService = mock[AuthService]
-      val controller = new AuthController(stubControllerComponents(), mockService)(ec)
-
+      val (controller, _) = createController()
       val invalidJson = Json.obj(
         "email" -> "invalid@example.com",
         "password" -> "123" // name missing + password too short
@@ -68,9 +78,7 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
     }
 
     "return 409 Conflict when email already exists" in {
-      val mockService = mock[AuthService]
-      val controller = new AuthController(stubControllerComponents(), mockService)(ec)
-
+      val (controller, mockService) = createController()
       val requestJson = Json.obj(
         "name" -> "Jane",
         "email" -> "jane@example.com",
@@ -91,9 +99,7 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
     }
 
     "return 500 InternalServerError when unexpected exception occurs" in {
-      val mockService = mock[AuthService]
-      val controller = new AuthController(stubControllerComponents(), mockService)(ec)
-
+      val (controller, mockService) = createController()
       val requestJson = Json.obj(
         "name" -> "Test",
         "email" -> "test@example.com",
