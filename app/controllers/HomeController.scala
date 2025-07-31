@@ -1,5 +1,7 @@
 package controllers
 
+import play.api.libs.json.Json
+
 import javax.inject._
 import play.api.mvc._
 
@@ -21,6 +23,6 @@ class HomeController @Inject()(val cc: ControllerComponents)(implicit ec: Execut
    */
   def index() = Action { implicit request: Request[AnyContent] =>
     val data = Map("version" -> "1.0", "status" -> "OK")
-    apiResult(data, message = "Welcome to the API")
+    Ok(Json.obj("data" -> data, "message" -> "Welcome to the API"))
   }
 }
