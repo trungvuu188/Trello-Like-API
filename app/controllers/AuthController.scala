@@ -60,7 +60,6 @@ class AuthController @Inject()(
                       message
                   }
               }.toList
-
               Future.successful(apiError(Map("validation_errors" -> errors), "Invalid request data", BadRequest))
       }
   }

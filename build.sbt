@@ -1,54 +1,64 @@
 name := """trello-service"""
 organization := "com.nashtech"
-
 version := "1.0-SNAPSHOT"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
-
-scalaVersion := "2.13.16"
 
 // Dependency versions
 val playSlickVersion = "6.1.1"
 val postgresVersion = "42.7.3"
 val jacksonVersion = "2.14.3"
 
-libraryDependencies ++= Seq(
-  guice,
-  caffeine,
-  filters,
+lazy val root = (project in file("."))
+    .enablePlugins(PlayScala)
+    .settings (
+      scalaVersion := "2.13.16",
 
-  "org.playframework" %% "play-slick" % playSlickVersion,
-  "org.playframework" %% "play-slick-evolutions" % playSlickVersion,
-  "org.postgresql" % "postgresql" % postgresVersion,
-  "com.github.t3hnar" % "scala-bcrypt_2.13" % "4.3.0",
+      libraryDependencies ++= Seq(
+        guice,
+        caffeine,
+        filters,
 
-  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
-  "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+        "org.playframework" %% "play-slick" % playSlickVersion,
+        "org.playframework" %% "play-slick-evolutions" % playSlickVersion,
+        "org.postgresql" % "postgresql" % postgresVersion,
+        "com.github.t3hnar" % "scala-bcrypt_2.13" % "4.3.0",
 
-  // Explicitly add compatible Jackson versions
-  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+        "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
 
-//  JWT
-  "com.auth0" % "java-jwt" % "4.5.0",
-// Environment variable loading
-  "io.github.cdimascio" % "dotenv-java" % "3.2.0",
-)
+        // Explicitly add compatible Jackson versions
+        "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+        "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+        "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+        "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+        "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
+        "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
 
-// CRITICAL: Force Jackson versions to prevent conflicts
-dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
-)
+        //  JWT
+        "com.auth0" % "java-jwt" % "4.5.0",
+        // Environment variable loading
+        "io.github.cdimascio" % "dotenv-java" % "3.2.0",
+      ),
+
+      // CRITICAL: Force Jackson versions to prevent conflicts
+      dependencyOverrides ++= Seq(
+        "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+        "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+        "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+        "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
+        "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
+        "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
+      ),
+
+      coverageExcludedPackages := "models.* ; dto.* ; filters.* ; modules.* ; repositories.* ; router.* ; controllers.javascript; controllers.ReverseAuthController; controllers.ReverseHomeController",
+      coverageExcludedFiles := ".*ReverseRoutes.scala",
+      coverageEnabled     := true,
+      coverageMinimumStmtTotal := 80,
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true
+    )
+
+
 
 coverageEnabled := true
 coverageMinimumStmtTotal := 80
