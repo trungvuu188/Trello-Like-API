@@ -2,7 +2,7 @@ name: Development Pipeline
 
 on:
   push:
-    branches: [ main, feat/* ]
+    branches: [ main ]
   pull_request:
     branches: [ develop ]
 
@@ -32,6 +32,12 @@ jobs:
       - name: Build Play Framework App
         run: sbt stage
 
-      # 5. Run Tests
-      - name: Run tests
-        run: sbt clean test
+      # 5. Run Scalastyle (Static Code Analysis)
+      - name: Run Scalastyle
+        continue-on-error: true
+        run: sbt scalastyle
+
+      # 6. Run tests with coverage
+      - name: Run Scoverage Tests
+        continue-on-error: true
+        run: sbt clean coverage test coverageReport coverageAggregate

@@ -50,3 +50,15 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
 )
 
+coverageEnabled := true
+coverageMinimumStmtTotal := 80
+coverageFailOnMinimum := true
+coverageExcludedPackages := Seq(
+  "controllers\\.javascript\\..*",
+  "dto\\.request\\.auth\\..*",
+  "dto\\.response\\..*",
+  "filters\\..*",
+  "models\\.tables\\..*",
+  "modules\\..*",
+  "router\\..*"
+).mkString(";")
