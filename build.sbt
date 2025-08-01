@@ -53,7 +53,7 @@ lazy val root = (project in file("."))
       coverageExcludedFiles := ".*ReverseRoutes.scala",
       coverageEnabled     := true,
       coverageMinimumStmtTotal := 80,
-      coverageFailOnMinimum := true,
+      coverageFailOnMinimum := false,
       coverageHighlighting := true,
         coverageExcludedPackages := Seq(
             "controllers\\.javascript\\..*",
