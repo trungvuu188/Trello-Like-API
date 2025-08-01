@@ -50,25 +50,20 @@ lazy val root = (project in file("."))
         "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
       ),
 
-      coverageExcludedPackages := "models.* ; dto.* ; filters.* ; modules.* ; repositories.* ; router.* ; controllers.javascript; controllers.ReverseAuthController; controllers.ReverseHomeController",
       coverageExcludedFiles := ".*ReverseRoutes.scala",
       coverageEnabled     := true,
       coverageMinimumStmtTotal := 80,
-      coverageFailOnMinimum := false,
-      coverageHighlighting := true
+      coverageFailOnMinimum := true,
+      coverageHighlighting := true,
+        coverageExcludedPackages := Seq(
+            "controllers\\.javascript\\..*",
+            "controllers.ReverseAuthController",
+            "controllers.ReverseHomeController",
+            "dto\\.request\\.auth\\..*",
+            "dto\\.response\\..*",
+            "filters\\..*",
+            "models\\.tables\\..*",
+            "modules\\..*",
+            "router\\..*"
+        ).mkString(";")
     )
-
-
-
-coverageEnabled := true
-coverageMinimumStmtTotal := 80
-coverageFailOnMinimum := true
-coverageExcludedPackages := Seq(
-  "controllers\\.javascript\\..*",
-  "dto\\.request\\.auth\\..*",
-  "dto\\.response\\..*",
-  "filters\\..*",
-  "models\\.tables\\..*",
-  "modules\\..*",
-  "router\\..*"
-).mkString(";")

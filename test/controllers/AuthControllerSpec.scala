@@ -9,7 +9,7 @@ import org.scalatestplus.play._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test._
-import services.{AuthService, CookieService, JwtService}
+import services.{AuthService, CookieService, JwtService, RoleService}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
@@ -23,6 +23,7 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
                               ): (AuthController, AuthService) = {
     val mockJwtService = mock[JwtService]
     val mockCookieService = mock[CookieService]
+    val roleService = mock[RoleService]
     val mockAuthenticatedActionWithUser = mock[AuthenticatedActionWithUser]
 
     val controller = new AuthController(
@@ -30,9 +31,9 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
       stubControllerComponents(),
       mockJwtService,
       mockCookieService,
+      roleService,
       mockAuthenticatedActionWithUser
     )
-
     (controller, mockService)
   }
 
