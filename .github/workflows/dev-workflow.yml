@@ -34,10 +34,10 @@ jobs:
 
       # 5. Run Scalastyle (Static Code Analysis)
       - name: Run Scalastyle
-        continue-on-error: true
+#        continue-on-error: true
         run: sbt scalastyle
 
       # 6. Run tests with coverage
       - name: Run Scoverage Tests
-        continue-on-error: true
+#        continue-on-error: true
         run: sbt clean coverage test coverageReport coverageAggregate

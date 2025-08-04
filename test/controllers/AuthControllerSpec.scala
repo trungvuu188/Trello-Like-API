@@ -1,18 +1,21 @@
 package controllers
 
 import dto.request.auth.RegisterUserRequest
+import dto.response.auth.AuthResponse
 import models.entities.User
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.libs.json.Json
+import play.api.mvc.Cookie
 import play.api.test.Helpers._
 import play.api.test._
-import services.{AuthService, CookieService, JwtService, RoleService}
+import services.{AuthService, CookieService, JwtService, RoleService, UserToken}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class AuthControllerSpec extends PlaySpec with MockitoSugar {
 
@@ -75,7 +78,7 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
       val result = controller.register()(fakeRequest)
 
       status(result) mustBe BAD_REQUEST
-      contentAsString(result) must include("Invalid request data")
+      contentAsString(result) must include("name is required")
     }
 
     "return 409 Conflict when email already exists" in {
@@ -120,4 +123,139 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
       contentAsString(result) must include("Internal server error")
     }
   }
+
+  "login" should {
+    "return 200 OK when credentials are valid" in {
+      val mockService = mock[AuthService]
+      val mockJwtService = mock[JwtService]
+      val mockCookieService = mock[CookieService]
+
+      val userToken = mock[UserToken]
+      val token = "jwt.token"
+
+      when(mockService.authenticateUser("john@example.com", "abc123"))
+        .thenReturn(Future.successful(Some(userToken)))
+      when(mockJwtService.generateToken(userToken)).thenReturn(Success(token))
+      when(mockService.userTokenToAuthResponse(userToken)).thenReturn(AuthResponse(1, "John", "john@example.com"))
+      when(mockCookieService.createAuthCookie(token)).thenReturn(Cookie("authToken", token))
+
+      val controller = new AuthController(mockService, stubControllerComponents(), mockJwtService,
+        mockCookieService, mock[RoleService], mock[AuthenticatedActionWithUser])
+
+      val requestJson = Json.obj("email" -> "john@example.com", "password" -> "abc123")
+      val request = FakeRequest(POST, "/login").withJsonBody(requestJson)
+
+      val result = controller.login()(request)
+      status(result) mustBe OK
+      contentAsString(result) must include("Login successful")
+    }
+
+    "return 401 Unauthorized for invalid credentials" in {
+      val (controller, mockService) = createController()
+      when(mockService.authenticateUser(any[String], any[String])).thenReturn(Future.successful(None))
+
+      val requestJson = Json.obj("email" -> "a@a.com", "password" -> "wrong")
+      val request = FakeRequest(POST, "/login").withJsonBody(requestJson)
+
+      val result = controller.login()(request)
+      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("Invalid email or password")
+    }
+
+    "return 400 BadRequest if request is not JSON" in {
+      val controller = createController()._1
+      val request = FakeRequest(POST, "/login")
+
+      val result = controller.login()(request)
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("JSON body required")
+    }
+  }
+
+  "logout" should {
+    "return 200 OK and clear cookie" in {
+      val mockCookieService = mock[CookieService]
+      when(mockCookieService.createExpiredAuthCookie()).thenReturn(Cookie("authToken", "", maxAge = Some(0)))
+
+      val controller = new AuthController(mock[AuthService], stubControllerComponents(), mock[JwtService],
+        mockCookieService, mock[RoleService], mock[AuthenticatedActionWithUser])
+
+      val result = controller.logout()(FakeRequest(POST, "/logout"))
+      status(result) mustBe OK
+      cookies(result).get("authToken").isDefined mustBe true
+    }
+  }
+
+  "checkAuth" should {
+    "return 200 OK if user is authenticated" in {
+      val mockAuthService = mock[AuthService]
+      val mockJwtService = mock[JwtService]
+      val mockCookieService = mock[CookieService]
+      val mockUserToken = mock[UserToken]
+
+      val token = "valid.jwt.token"
+      val fakeRequest = FakeRequest(GET, "/check-auth")
+        .withCookies(Cookie("authToken", token))
+
+      // Stub methods
+      when(mockCookieService.getTokenFromRequest(fakeRequest)).thenReturn(Some(token))
+      when(mockJwtService.validateToken(token)).thenReturn(Success(mockUserToken))
+      when(mockAuthService.userTokenToAuthResponse(mockUserToken)).thenReturn(AuthResponse(1, "John", "john@example.com"))
+
+      val controller = new AuthController(
+        mockAuthService,
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mock[RoleService],
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.checkAuth()(fakeRequest)
+      status(result) mustBe OK
+      contentAsString(result) must include("User is authenticated")
+    }
+
+    "return 401 Unauthorized if token is missing" in {
+      val mockCookieService = mock[CookieService]
+      when(mockCookieService.getTokenFromRequest(any())).thenReturn(None)
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mock[JwtService],
+        mockCookieService,
+        mock[RoleService],
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.checkAuth()(FakeRequest())
+      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("No authentication token found")
+    }
+
+    "return 401 Unauthorized if token is invalid" in {
+      val mockCookieService = mock[CookieService]
+      val mockJwtService = mock[JwtService]
+      val token = "invalid.token"
+
+      when(mockCookieService.getTokenFromRequest(any())).thenReturn(Some(token))
+      when(mockJwtService.validateToken(token)).thenReturn(Failure(new RuntimeException("Invalid token")))
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mock[RoleService],
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.checkAuth()(FakeRequest().withCookies(Cookie("authToken", token)))
+      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("Invalid or expired token")
+    }
+  }
+
+
 }

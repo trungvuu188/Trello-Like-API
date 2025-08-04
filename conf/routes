@@ -3,9 +3,6 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index()
-
 
 # Authentication routes
 POST    /api/auth/register      controllers.AuthController.register()
@@ -14,4 +11,4 @@ POST    /api/auth/logout        controllers.AuthController.logout()
 GET     /api/auth/me            controllers.AuthController.me()
 POST    /api/auth/refresh       controllers.AuthController.refresh()
 GET     /api/auth/check         controllers.AuthController.checkAuth()
-POST    /api/auth/role         controllers.AuthController.roleRetrieve()
+GET    /api/auth/role         controllers.AuthController.roleRetrieve()

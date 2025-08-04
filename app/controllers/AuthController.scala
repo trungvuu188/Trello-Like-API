@@ -26,7 +26,7 @@ class AuthController @Inject()(
                                 cookieService: CookieService,
                                 roleService: RoleService,
                                 authenticatedActionWithUser: AuthenticatedActionWithUser
-                              )(implicit ec: ExecutionContext) extends ApiBaseController(cc) {
+                              )(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def register(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     parseRegisterRequest(request.body).fold(
@@ -37,7 +37,7 @@ class AuthController @Inject()(
           user.name,
           user.email
         )
-        apiResult(responseData, "User registered successfully", Created)
+        Created(Json.toJson(ApiResponse.success("User registered successfully", responseData)))
       }.recover {
         case ex: RuntimeException if ex.getMessage.contains("Email already exists") =>
           Conflict(Json.toJson(ApiResponse.error[AuthResponse]("Email already exists")))
