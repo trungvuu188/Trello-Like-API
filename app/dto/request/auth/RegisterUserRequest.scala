@@ -11,12 +11,16 @@ case class RegisterUserRequest(
                               )
 
 object RegisterUserRequest {
+  private val NameMinLength = 1
+  private val NameMaxLength = 100
+  private val PasswordMinLength = 6
+  private val PasswordMaxLength = 50
+
   implicit val reads: Reads[RegisterUserRequest] = (
-    (JsPath \ "name").read[String](minLength[String](1) keepAnd maxLength[String](100)).map(_.trim) and
+    (JsPath \ "name").read[String](minLength[String](NameMinLength) keepAnd maxLength[String](NameMaxLength)).map(_.trim) and
       (JsPath \ "email").read[String](email).map(_.trim.toLowerCase) and
-      (JsPath \ "password").read[String](minLength[String](6) keepAnd maxLength[String](50))
+      (JsPath \ "password").read[String](minLength[String](PasswordMinLength) keepAnd maxLength[String](PasswordMaxLength))
     )(RegisterUserRequest.apply _)
 
   implicit val writes: Writes[RegisterUserRequest] = Json.writes[RegisterUserRequest]
 }
-

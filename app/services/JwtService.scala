@@ -3,7 +3,6 @@ package services
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.{JWTVerificationException, JWTCreationException}
-import org.apache.pekko.actor.Status.Failure
 import play.api.Configuration
 import play.api.libs.json.Json
 

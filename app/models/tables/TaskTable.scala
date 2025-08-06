@@ -35,7 +35,10 @@ class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
   def createdAt = column[Option[LocalDateTime]]("created_at")
   def updatedAt = column[Option[LocalDateTime]]("updated_at")
 
-  def * = (id.?, projectId, columnId, name, description, startDate, endDate, priority, position, assignedTo, createdBy, updatedBy, createdAt, updatedAt) <> ((Task.apply _).tupled, Task.unapply)
+  def * =
+    (id.?, projectId, columnId, name, description, startDate, endDate, priority, position, assignedTo,
+      createdBy, updatedBy, createdAt, updatedAt) <>
+    ((Task.apply _).tupled, Task.unapply)
 
   def columnPositionIndex = index("tasks_column_id_position_index", (columnId, position))
   def projectIdIndex = index("tasks_project_id_index", projectId)

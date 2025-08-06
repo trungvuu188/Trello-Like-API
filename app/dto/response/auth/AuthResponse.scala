@@ -5,7 +5,7 @@ import play.api.libs.json.{Format, Json}
 case class AuthResponse (
     id: Int,
     name: String,
-    email: String,
+    email: String
 )
 
 object AuthResponse {
