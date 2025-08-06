@@ -92,7 +92,7 @@ class AuthServiceSpec extends PlaySpec with MockitoSugar {
       val mockRoleRepo = mock[RoleRepository]
 
       val plainPassword = "securePass123"
-      val hashedPassword = plainPassword.bcrypt
+      val hashedPassword = plainPassword.bcryptSafeBounded.get
       val user = User(Some(10), "Diana", "diana@example.com", hashedPassword, None, Some(1), LocalDateTime.now())
 
       when(mockUserRepo.findByEmail("diana@example.com")).thenReturn(Future.successful(Some(user)))
@@ -114,7 +114,7 @@ class AuthServiceSpec extends PlaySpec with MockitoSugar {
 
       val correctPassword = "rightPass123"
       val wrongPassword = "wrongPass"
-      val hashedPassword = correctPassword.bcrypt
+      val hashedPassword = correctPassword.bcryptSafeBounded.get
       val user = User(Some(5), "Eve", "eve@example.com", hashedPassword, None, Some(1), LocalDateTime.now())
 
       when(mockUserRepo.findByEmail("eve@example.com")).thenReturn(Future.successful(Some(user)))

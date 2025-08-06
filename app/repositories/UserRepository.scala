@@ -63,14 +63,4 @@ class UserRepository @Inject()(
   def update(user: User): Future[Int] = {
     db.run(users.filter(_.id === user.id).update(user))
   }
-
-  /**
-   * Deletes a user by ID.
-   *
-   * @param id The user ID.
-   * @return A Future containing the number of affected rows.
-   */
-  def delete(id: Int): Future[Int] = {
-    db.run(users.filter(_.id === id).delete)
-  }
 }

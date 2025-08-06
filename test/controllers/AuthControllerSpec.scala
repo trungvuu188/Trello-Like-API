@@ -8,7 +8,7 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.libs.json.Json
-import play.api.mvc.Cookie
+import play.api.mvc.{Cookie, Request, Result}
 import play.api.test.Helpers._
 import play.api.test._
 import services.{AuthService, CookieService, JwtService, RoleService, UserToken}
@@ -256,6 +256,219 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
       contentAsString(result) must include("Invalid or expired token")
     }
   }
+
+  "roleRetrieve" should {
+    "return 200 OK with role when user is authenticated and has role" in {
+      val mockCookieService = mock[CookieService]
+      val mockJwtService = mock[JwtService]
+      val mockRoleService = mock[RoleService]
+
+      val userToken = UserToken(1, "John", "john@example.com")
+      val token = "valid.jwt.token"
+      val fakeRequest = FakeRequest(GET, "/role")
+        .withCookies(Cookie("authToken", token))
+
+      when(mockCookieService.getTokenFromRequest(fakeRequest)).thenReturn(Some(token))
+      when(mockJwtService.validateToken(token)).thenReturn(Success(userToken))
+      when(mockRoleService.getUserRole(1)).thenReturn(Future.successful(Some("admin")))
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mockRoleService,
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.roleRetrieve()(fakeRequest)
+      status(result) mustBe OK
+      contentAsString(result) must include("User is authenticated")
+      contentAsString(result) must include("admin")
+    }
+
+    "return 404 NotFound when user has no role" in {
+      val mockCookieService = mock[CookieService]
+      val mockJwtService = mock[JwtService]
+      val mockRoleService = mock[RoleService]
+      val userToken = UserToken(1, "John", "john@example.com")
+      val token = "valid.jwt.token"
+      val fakeRequest = FakeRequest(GET, "/role")
+        .withCookies(Cookie("authToken", token))
+
+      when(mockCookieService.getTokenFromRequest(fakeRequest)).thenReturn(Some(token))
+      when(mockJwtService.validateToken(token)).thenReturn(Success(userToken))
+      when(mockRoleService.getUserRole(1)).thenReturn(Future.successful(None))
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mockRoleService,
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.roleRetrieve()(fakeRequest)
+      status(result) mustBe NOT_FOUND
+      contentAsString(result) must include("No role found")
+    }
+
+    "return 401 Unauthorized when token is missing" in {
+      val mockCookieService = mock[CookieService]
+      val mockJwtService = mock[JwtService]
+      val mockRoleService = mock[RoleService]
+      when(mockCookieService.getTokenFromRequest(any())).thenReturn(None)
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mockRoleService,
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.roleRetrieve()(FakeRequest())
+      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("No authentication token found")
+    }
+
+    "return 401 Unauthorized when token is invalid" in {
+      val mockCookieService = mock[CookieService]
+      val mockJwtService = mock[JwtService]
+      val mockRoleService = mock[RoleService]
+      val token = "invalid.token"
+
+      when(mockCookieService.getTokenFromRequest(any())).thenReturn(Some(token))
+      when(mockJwtService.validateToken(token)).thenReturn(Failure(new RuntimeException("Invalid token")))
+
+      val controller = new AuthController(
+        mock[AuthService],
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mockRoleService,
+        mock[AuthenticatedActionWithUser]
+      )
+
+      val result = controller.roleRetrieve()(FakeRequest().withCookies(Cookie("authToken", token)))
+      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("Invalid or expired token")
+    }
+  }
+
+  "me" should {
+    "return 200 OK with user info" in {
+      val mockAuthService = mock[AuthService]
+      val mockUserToken = UserToken(1, "John", "john@example.com")
+      val expectedResponse = AuthResponse(1, "John", "john@example.com")
+
+      when(mockAuthService.userTokenToAuthResponse(mockUserToken)).thenReturn(expectedResponse)
+
+      val mockAction = new AuthenticatedActionWithUser(null, null, null) {
+        override def invokeBlock[A](
+                                     request: Request[A],
+                                     block: AuthenticatedRequest[A] => Future[Result]
+                                   ): Future[Result] = {
+          val authReq = AuthenticatedRequest(mockUserToken, request)
+          block(authReq)
+        }
+      }
+
+      val controller = new AuthController(
+        mockAuthService,
+        stubControllerComponents(),
+        mock[JwtService],
+        mock[CookieService],
+        mock[RoleService],
+        mockAction
+      )
+
+      val result = controller.me()(FakeRequest(GET, "/me"))
+      status(result) mustBe OK
+      contentAsString(result) must include("User information retrieved")
+      contentAsString(result) must include("John")
+      contentAsString(result) must include("john@example.com")
+    }
+  }
+
+  "refresh" should {
+    "return 200 OK with refreshed token and set new auth cookie" in {
+      val mockAuthService = mock[AuthService]
+      val mockJwtService = mock[JwtService]
+      val mockCookieService = mock[CookieService]
+      val userToken = UserToken(1, "John", "john@example.com")
+      val newToken = "new.jwt.token"
+      val authResponse = AuthResponse(1, "John", "john@example.com")
+      val authCookie = Cookie("authToken", newToken)
+
+      // Stub dependencies
+      when(mockJwtService.refreshToken(userToken)).thenReturn(Success(newToken))
+      when(mockAuthService.userTokenToAuthResponse(userToken)).thenReturn(authResponse)
+      when(mockCookieService.createAuthCookie(newToken)).thenReturn(authCookie)
+
+      // Fake authenticated action
+      val mockAction = new AuthenticatedActionWithUser(null, null, null) {
+        override def invokeBlock[A](
+                                     request: Request[A],
+                                     block: AuthenticatedRequest[A] => Future[Result]
+                                   ): Future[Result] = {
+          block(AuthenticatedRequest(userToken, request))
+        }
+      }
+
+      val controller = new AuthController(
+        mockAuthService,
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mock[RoleService],
+        mockAction
+      )
+
+      val result = controller.refresh()(FakeRequest(GET, "/refresh"))
+      status(result) mustBe OK
+      contentAsString(result) must include("Token refreshed successfully")
+      cookies(result).get("authToken").get.value mustBe newToken
+    }
+
+    "return 500 InternalServerError and expired cookie if token refresh fails" in {
+      val mockAuthService = mock[AuthService]
+      val mockJwtService = mock[JwtService]
+      val mockCookieService = mock[CookieService]
+      val userToken = UserToken(1, "John", "john@example.com")
+      val expiredCookie = Cookie("authToken", "", maxAge = Some(0))
+
+      when(mockJwtService.refreshToken(userToken))
+        .thenReturn(Failure(new RuntimeException("Token expired")))
+      when(mockCookieService.createExpiredAuthCookie()).thenReturn(expiredCookie)
+
+      val mockAction = new AuthenticatedActionWithUser(null, null, null) {
+        override def invokeBlock[A](
+                                     request: Request[A],
+                                     block: AuthenticatedRequest[A] => Future[Result]
+                                   ): Future[Result] = {
+          block(AuthenticatedRequest(userToken, request))
+        }
+      }
+
+      val controller = new AuthController(
+        mockAuthService,
+        stubControllerComponents(),
+        mockJwtService,
+        mockCookieService,
+        mock[RoleService],
+        mockAction
+      )
+
+      val result = controller.refresh()(FakeRequest(GET, "/refresh"))
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentAsString(result) must include("Token refresh failed: Token expired")
+      cookies(result).get("authToken").get.value mustBe "" // expired
+    }
+  }
+
 
 
 }

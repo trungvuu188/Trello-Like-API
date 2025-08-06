@@ -25,6 +25,7 @@ lazy val root = (project in file("."))
         "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
         "org.mockito" %% "mockito-scala-scalatest" % "1.17.29" % Test,
         "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test,
+        "com.h2database" % "h2" % "2.2.224" % Test,
 
         // Explicitly add compatible Jackson versions
         "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
