@@ -42,6 +42,10 @@ lazy val root = (project in file("."))
         "io.github.cdimascio" % "dotenv-java" % "3.2.0",
         // Slick extensions for PostgreSQL, to support a series of pg data types and related operators/functions.
         "com.github.tminglei" %% "slick-pg" % slickPgVersion,
+        "com.typesafe.play" %% "play-ws" % "2.9.8",
+        "com.typesafe.play" %% "play-json" % "2.10.7",
+        "org.jsoup" % "jsoup" % "1.21.1",
+        "org.playframework" %% "play-ahc-ws" % "3.0.8"
       ),
 
       // CRITICAL: Force Jackson versions to prevent conflicts
@@ -76,4 +80,5 @@ lazy val root = (project in file("."))
             "db\\..*",
             "validations\\..*",
         ).mkString(";")
+
     )
