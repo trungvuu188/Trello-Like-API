@@ -8,6 +8,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import com.github.t3hnar.bcrypt._
 import dto.response.auth.AuthResponse
+import exception.AppException
+import play.api.http.Status
 
 import scala.util.{Failure, Success}
 
@@ -38,7 +40,10 @@ class AuthService@Inject()(
     // Check if email existed
     userRepository.findByEmail(request.email).flatMap {
       case Some(_) =>
-        Future.failed(new RuntimeException("Email already exists"))
+      throw AppException(
+        message = "Email already exists",
+        statusCode = Status.CONFLICT
+      )
       case None =>
         roleRepository.findByRoleName("user").flatMap {
           case Some(role) =>
@@ -53,7 +58,9 @@ class AuthService@Inject()(
             userRepository.create(newUser)
 
           case None =>
-            Future.failed(new RuntimeException("Role 'user' not found"))
+            throw AppException(
+              message = "Role 'admin' not found", statusCode = Status.NOT_FOUND
+            )
         }
     }
   }

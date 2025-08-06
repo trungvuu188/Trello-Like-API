@@ -2,7 +2,7 @@ package init
 
 import models.entities.User
 import repositories.{RoleRepository, UserRepository}
-import play.api.{Configuration, Logging}
+import play.api.{Configuration, Logger, Logging}
 import com.github.t3hnar.bcrypt._
 
 import java.time.LocalDateTime
@@ -14,13 +14,13 @@ class DatabaseInitializer @Inject()(
                                      userRepository: UserRepository,
                                      roleRepository: RoleRepository,
                                      config: Configuration
-                                   )(implicit ec: ExecutionContext) extends Logging {
+                                   )(implicit ec: ExecutionContext) {
 
   def initializeDatabase(): Future[Unit] = {
-    logger.info("Starting database initialization...")
+    Logger("application").info("Starting database initialization...")
 
     createDefaultAdmin().map { _ =>
-      logger.info("Database initialization completed")
+      Logger("application").info("Database initialization completed")
     }
   }
 
@@ -34,14 +34,14 @@ class DatabaseInitializer @Inject()(
 
     userRepository.findByEmail(defaultAdminEmail).flatMap {
       case Some(existingUser) =>
-        logger.info(s"Admin user already exists: $defaultAdminEmail, skipping creation")
+        Logger("application").info(s"Admin user already exists: $defaultAdminEmail, skipping creation")
         Future.successful(())
       case None =>
-        logger.info(s"Creating default admin user: $defaultAdminEmail")
+        Logger("application").info(s"Creating default admin user: $defaultAdminEmail")
         createAdminUser(defaultAdminName, defaultAdminEmail, defaultAdminPassword)
     }.recover {
       case ex =>
-        logger.error(s"Failed to create default admin user: ${ex.getMessage}", ex)
+        Logger("application").error(s"Failed to create default admin user: ${ex.getMessage}", ex)
         throw ex
     }
   }
@@ -64,7 +64,7 @@ class DatabaseInitializer @Inject()(
       )
       _ <- userRepository.create(adminUser)
     } yield {
-      logger.info(s"Default admin user created successfully: $email")
+      Logger("application").info(s"Default admin user created successfully: $email")
     }
   }
 }

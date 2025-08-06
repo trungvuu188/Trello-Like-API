@@ -38,11 +38,6 @@ class AuthController @Inject()(
           user.email
         )
         Created(Json.toJson(ApiResponse.success("User registered successfully", responseData)))
-      }.recover {
-        case ex: RuntimeException if ex.getMessage.contains("Email already exists") =>
-          Conflict(Json.toJson(ApiResponse.error[AuthResponse]("Email already exists")))
-        case _: Exception =>
-          InternalServerError(Json.toJson(ApiResponse.error[AuthResponse]("Internal server error")))
       }
     )
   }

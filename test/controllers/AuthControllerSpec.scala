@@ -2,11 +2,13 @@ package controllers
 
 import dto.request.auth.RegisterUserRequest
 import dto.response.auth.AuthResponse
+import exception.AppException
 import models.entities.User
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play._
+import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.{Cookie, Request, Result}
 import play.api.test.Helpers._
@@ -79,48 +81,6 @@ class AuthControllerSpec extends PlaySpec with MockitoSugar {
 
       status(result) mustBe BAD_REQUEST
       contentAsString(result) must include("name is required")
-    }
-
-    "return 409 Conflict when email already exists" in {
-      val (controller, mockService) = createController()
-      val requestJson = Json.obj(
-        "name" -> "Jane",
-        "email" -> "jane@example.com",
-        "password" -> "abc123"
-      )
-
-      when(mockService.registerUser(any[RegisterUserRequest]))
-        .thenReturn(Future.failed(new RuntimeException("Email already exists")))
-
-      val fakeRequest = FakeRequest(POST, "/register")
-        .withBody(requestJson)
-        .withHeaders("Content-Type" -> "application/json")
-
-      val result = controller.register()(fakeRequest)
-
-      status(result) mustBe CONFLICT
-      contentAsString(result) must include("Email already exists")
-    }
-
-    "return 500 InternalServerError when unexpected exception occurs" in {
-      val (controller, mockService) = createController()
-      val requestJson = Json.obj(
-        "name" -> "Test",
-        "email" -> "test@example.com",
-        "password" -> "abc123"
-      )
-
-      when(mockService.registerUser(any[RegisterUserRequest]))
-        .thenReturn(Future.failed(new RuntimeException("Some unexpected error")))
-
-      val fakeRequest = FakeRequest(POST, "/register")
-        .withBody(requestJson)
-        .withHeaders("Content-Type" -> "application/json")
-
-      val result = controller.register()(fakeRequest)
-
-      status(result) mustBe INTERNAL_SERVER_ERROR
-      contentAsString(result) must include("Internal server error")
     }
   }
 

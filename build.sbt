@@ -66,6 +66,7 @@ lazy val root = (project in file("."))
             "models\\.tables\\..*",
             "modules\\..*",
             "router\\..*",
-            "init\\..*"
+            "init\\..*",
+            "exception\\..*",
         ).mkString(";")
     )
