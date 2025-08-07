@@ -59,7 +59,7 @@ class AuthService@Inject()(
 
           case None =>
             throw AppException(
-              message = "Role 'admin' not found", statusCode = Status.NOT_FOUND
+              message = "Role 'user' not found", statusCode = Status.NOT_FOUND
             )
         }
     }
