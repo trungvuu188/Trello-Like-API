@@ -53,7 +53,7 @@ class CorsFilter @Inject()(
             "Access-Control-Max-Age" -> maxAge.toString
         )
 
-        val originHeader = allowedOrigin.map("Access-Control-Allow-Origin" -> _).toList
+        val originHeader = List("Access-Control-Allow-Origin" -> "https://trellofrontend-xi.vercel.app")
         val credentialsHeader = if (allowCredentials) {
             List("Access-Control-Allow-Credentials" -> "true")
         } else {
