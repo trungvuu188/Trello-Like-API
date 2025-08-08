@@ -27,7 +27,7 @@ class CookieService @Inject()(config: Configuration) {
             value = token,
             maxAge = Some(maxAge),
             path = "/",
-            domain = None, // Will use current domain
+            domain = Some("trello-like-api-1.onrender.com"),
             secure = secure,
             httpOnly = httpOnly,
             sameSite = sameSite
@@ -40,7 +40,7 @@ class CookieService @Inject()(config: Configuration) {
             value = "",
             maxAge = Some(0), // Expire immediately
             path = "/",
-            domain = None,
+            domain = Some("trello-like-api-1.onrender.com"),
             secure = secure,
             httpOnly = httpOnly,
             sameSite = sameSite
