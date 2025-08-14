@@ -1,7 +1,6 @@
 package services
 
-import dto.request.workspace.{CreateWorkspaceRequest, UpdateWorkspaceRequest}
-import exception.AppException
+import dto.request.workspace.CreateWorkspaceRequest
 import models.entities.Workspace
 import play.api.http.Status
 import repositories.WorkspaceRepository
@@ -11,12 +10,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class WorkspaceService @Inject()(workspaceRepository: WorkspaceRepository)(
-  implicit ec: ExecutionContext
-) {
+class WorkspaceService @Inject() (
+    workspaceRepo: WorkspaceRepository
+) (implicit ec: ExecutionContext) {
 
-  def createWorkspace(workspace: CreateWorkspaceRequest,
-                      createdBy: Int): Future[Int] = {
+    /** Get all workspaces */
+    def getAllWorkspaces: Future[Seq[WorkspaceResponse]] =
+        workspaceRepo.getAll().map(WorkspaceMapper.toResponses)
+  def createWorkspace(workspace: CreateWorkspaceRequest, createdBy: Int): Future[Int] = {
     val now = LocalDateTime.now()
     val newWorkspace = Workspace(
       name = workspace.name,
@@ -28,6 +29,13 @@ class WorkspaceService @Inject()(workspaceRepository: WorkspaceRepository)(
     workspaceRepository.createWithOwner(newWorkspace, createdBy)
   }
 
+    /** Get workspace by ID */
+    def getWorkspaceById(id: Int): Future[Option[WorkspaceResponse]] =
+        workspaceRepo.getWorkspaceById(id).map(_.map(WorkspaceMapper.toResponse))
+
+    /** Delete a workspace by ID */
+    def deleteWorkspace(id: Int): Future[Boolean] =
+        workspaceRepo.delete(id).map(_ > 0)
   def updateWorkspace(id: Int,
                       workspace: UpdateWorkspaceRequest,
                       updatedBy: Int): Future[Int] = {

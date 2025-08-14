@@ -1,8 +1,7 @@
 package repositories
 
-import models.Enums
-import models.entities.{UserWorkspace, Workspace}
-import models.tables.TableRegistry
+import models.entities.Workspace
+import models.tables.WorkspaceTable
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 
@@ -10,16 +9,24 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
+class WorkspaceRepository @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider
+)(implicit ec: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile]{
 class WorkspaceRepository @Inject()(
   protected val dbConfigProvider: DatabaseConfigProvider,
   userWorkspaceRepo: UserWorkspaceRepository
 )(implicit ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  import profile.api._
+    import profile.api._
 
+    // Table query object for the Workspaces table
+    private val workspaces = TableQuery[WorkspaceTable]
   private val workspaces = TableRegistry.workspaces
 
+    /** Get all workspaces */
+    def getAll(): Future[Seq[Workspace]] =
+        db.run(workspaces.result)
   /**
     * Creates a new workspace and associates it with the specified user as an owner.
     * This method performs the creation of both the workspace and the corresponding UserWorkspace entry
@@ -34,6 +41,9 @@ class WorkspaceRepository @Inject()(
       // Create workspace
       wsId <- (workspaces returning workspaces.map(_.id)) += workspace
 
+    /** Get a workspace by ID */
+    def getWorkspaceById(id: Int): Future[Option[Workspace]] =
+        db.run(workspaces.filter(_.id === id).result.headOption)
       // Create corresponding UserWorkspace entry
       _ <- userWorkspaceRepo.insertAction(
         UserWorkspace(
@@ -44,6 +54,9 @@ class WorkspaceRepository @Inject()(
       )
     } yield wsId
 
+    /** Delete a workspace by ID */
+    def delete(id: Int): Future[Int] =
+        db.run(workspaces.filter(_.id === id).delete)
     db.run(action.transactionally)
   }
 
@@ -71,3 +84,4 @@ class WorkspaceRepository @Inject()(
     db.run(query)
   }
 }
+
