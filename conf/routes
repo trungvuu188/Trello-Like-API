@@ -13,6 +13,11 @@ POST    /api/auth/refresh       controllers.AuthController.refresh()
 GET     /api/auth/check         controllers.AuthController.checkAuth()
 GET    /api/auth/role         controllers.AuthController.roleRetrieve()
 
+# Workspace
+GET     /api/workspaces            controllers.WorkspaceController.getAllWorkspaces
+GET     /api/workspaces/:id        controllers.WorkspaceController.getWorkspaceById(id: Int)
+DELETE  /api/workspaces/:id        controllers.WorkspaceController.deleteWorkspace(id: Int)
+
 # URL Preview for adding item
 GET     /api/url-preview        controllers.UrlPreviewController.preview()
 OPTIONS /api/url-preview        controllers.UrlPreviewController.previewOptions()
