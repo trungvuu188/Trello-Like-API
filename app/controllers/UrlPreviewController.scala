@@ -14,13 +14,13 @@ import org.jsoup.nodes.Document
 import scala.concurrent.duration.DurationInt
 
 case class UrlPreviewData(
-    url: String,
-    title: Option[String] = None,
-    description: Option[String] = None,
-    image: Option[String] = None,
-    siteName: Option[String] = None,
-    favicon: Option[String] = None
-)
+                             url: String,
+                             title: Option[String] = None,
+                             description: Option[String] = None,
+                             image: Option[String] = None,
+                             siteName: Option[String] = None,
+                             favicon: Option[String] = None
+                         )
 
 object UrlPreviewData {
     implicit val writes: Writes[UrlPreviewData] = Json.writes[UrlPreviewData]
@@ -28,9 +28,9 @@ object UrlPreviewData {
 
 @Singleton
 class UrlPreviewController @Inject()(
-    val controllerComponents: ControllerComponents,
-    ws: WSClient
-)(implicit ec: ExecutionContext) extends BaseController {
+                                        val controllerComponents: ControllerComponents,
+                                        ws: WSClient
+                                    )(implicit ec: ExecutionContext) extends BaseController {
 
     def preview(): Action[AnyContent] = Action.async { implicit request =>
         val urlParam = request.getQueryString("url")
@@ -134,28 +134,47 @@ class UrlPreviewController @Inject()(
         val doc: Document = Jsoup.parse(html)
         val urlObj = new URL(url)
 
-        val title = Option(doc.select("meta[property=og:title]").attr("content"))
-            .filter(_.nonEmpty)
-            .orElse(Option(doc.select("meta[name=twitter:title]").attr("content")).filter(_.nonEmpty))
-            .orElse(Option(doc.title()).filter(_.nonEmpty))
+        // Helper function to safely get attribute content
+        def getAttr(selector: String, attr: String = "content"): Option[String] = {
+            val elements = doc.select(selector)
+            if (elements.isEmpty) None
+            else {
+                val value = elements.attr(attr)
+                if (value != null && value.trim.nonEmpty) Some(value.trim) else None
+            }
+        }
 
-        val description = Option(doc.select("meta[property=og:description]").attr("content"))
-            .filter(_.nonEmpty)
-            .orElse(Option(doc.select("meta[name=twitter:description]").attr("content")).filter(_.nonEmpty))
-            .orElse(Option(doc.select("meta[name=description]").attr("content")).filter(_.nonEmpty))
+        // Get title from various sources
+        val title = getAttr("meta[property=og:title]")
+            .orElse(getAttr("meta[name=twitter:title]"))
+            .orElse {
+                val titleText = doc.title()
+                if (titleText != null && titleText.trim.nonEmpty) Some(titleText.trim) else None
+            }
 
-        val image = Option(doc.select("meta[property=og:image]").attr("content"))
-            .filter(_.nonEmpty)
-            .orElse(Option(doc.select("meta[name=twitter:image]").attr("content")).filter(_.nonEmpty))
+        // Get description from various sources
+        val description = getAttr("meta[property=og:description]")
+            .orElse(getAttr("meta[name=twitter:description]"))
+            .orElse(getAttr("meta[name=description]"))
+
+        // Get image
+        val image = getAttr("meta[property=og:image]")
+            .orElse(getAttr("meta[name=twitter:image]"))
             .map(img => if (img.startsWith("http")) img else s"${urlObj.getProtocol}://${urlObj.getHost}$img")
 
-        val siteName = Option(doc.select("meta[property=og:site_name]").attr("content"))
-            .filter(_.nonEmpty)
+        // Get site name
+        val siteName = getAttr("meta[property=og:site_name]")
             .orElse(Some(urlObj.getHost))
 
-        val favicon = Option(doc.select("link[rel=icon]").attr("href"))
-            .orElse(Option(doc.select("link[rel='shortcut icon']").attr("href")))
-            .map(fav => if (fav.startsWith("http")) fav else s"${urlObj.getProtocol}://${urlObj.getHost}$fav")
+        // Get favicon
+        val favicon = getAttr("link[rel=icon]", "href")
+            .orElse(getAttr("link[rel='shortcut icon']", "href"))
+            .filter(_.nonEmpty)
+            .map { fav =>
+                if (fav.startsWith("http")) fav
+                else if (fav.startsWith("/")) s"${urlObj.getProtocol}://${urlObj.getHost}$fav"
+                else s"${urlObj.getProtocol}://${urlObj.getHost}/$fav"
+            }
             .orElse(Some(s"https://www.google.com/s2/favicons?domain=${urlObj.getHost}&sz=32"))
 
         UrlPreviewData(

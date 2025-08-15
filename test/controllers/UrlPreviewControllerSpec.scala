@@ -81,23 +81,26 @@ class UrlPreviewControllerSpec extends PlaySpec with MockitoSugar {
 
         "fall back to direct HTML scraping when JsonLink fails" in {
             val ws = mock[WSClient]
-            val wsRequest = mock[WSRequest]
+            val jsonLinkRequest = mock[WSRequest]
+            val directRequest = mock[WSRequest]
             val wsResponse = mock[WSResponse]
 
             // First call (JsonLink) fails
-            when(ws.url(contains("jsonlink.io"))).thenReturn(wsRequest)
-            when(wsRequest.withRequestTimeout(any())).thenReturn(wsRequest)
-            when(wsRequest.get()).thenReturn(Future.failed(new RuntimeException("fail")))
+            when(ws.url(contains("jsonlink.io"))).thenReturn(jsonLinkRequest)
+            when(jsonLinkRequest.withRequestTimeout(any())).thenReturn(jsonLinkRequest)
+            when(jsonLinkRequest.get()).thenReturn(Future.failed(new RuntimeException("fail")))
 
-            // Second call (direct scraping) returns HTML
+            // Second call (direct scraping) returns HTML - use separate mock
             val html = """<html><head>
                          |<title>Fallback Title</title>
                          |<meta name="description" content="Fallback Desc"/>
                          |<link rel="icon" href="https://example.com/favicon.ico" />
                          |</head></html>""".stripMargin
-            when(ws.url(ArgumentMatchersSugar.eqTo("https://example.com"))).thenReturn(wsRequest)
-            when(wsRequest.withFollowRedirects(true)).thenReturn(wsRequest)
-            when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+
+            when(ws.url(ArgumentMatchersSugar.eqTo("https://example.com"))).thenReturn(directRequest)
+            when(directRequest.withRequestTimeout(any())).thenReturn(directRequest)
+            when(directRequest.withFollowRedirects(true)).thenReturn(directRequest)
+            when(directRequest.get()).thenReturn(Future.successful(wsResponse))
             when(wsResponse.status).thenReturn(200)
             when(wsResponse.body).thenReturn(html)
 
@@ -107,8 +110,13 @@ class UrlPreviewControllerSpec extends PlaySpec with MockitoSugar {
 
             status(result) mustBe OK
             val body = contentAsJson(result)
-            (body \ "title").asOpt[String] mustBe None
-            (body \ "description").as[String] must include("Fallback Desc")
+
+            // Check the extracted values
+            (body \ "title").asOpt[String] mustBe Some("Fallback Title")
+            (body \ "description").asOpt[String] mustBe Some("Fallback Desc")
+            (body \ "url").as[String] mustBe "https://example.com"
+            (body \ "siteName").asOpt[String] mustBe Some("example.com")
+            (body \ "favicon").asOpt[String] mustBe Some("https://example.com/favicon.ico")
         }
 
         "return fallback preview when all fetch methods fail" in {

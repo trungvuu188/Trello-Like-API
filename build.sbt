@@ -72,6 +72,7 @@ lazy val root = (project in file("."))
             "dto\\.request\\.auth\\..*",
             "dto\\.response\\..*",
             "filters\\..*",
+            "mappers\\..*",
             "models\\.tables\\..*",
             "modules\\..*",
             "router\\..*",
