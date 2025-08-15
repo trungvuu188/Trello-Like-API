@@ -1,6 +1,6 @@
 package controllers
 
-import dto.request.workspace.CreateWorkspaceRequest
+import dto.request.workspace.{CreateWorkspaceRequest, UpdateWorkspaceRequest}
 import dto.response.ApiResponse
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, Action, ControllerComponents}
@@ -31,6 +31,20 @@ class WorkspaceController @Inject()(
                 Json.toJson(ApiResponse[Unit]("Workspace created successfully"))
               )
           }
+      }
+    }
+  def update(id: Int): Action[JsValue] =
+    authenticatedActionWithUser.async(parse.json) { request =>
+      val updatedBy = request.userToken.userId
+      handleJsonValidation[UpdateWorkspaceRequest](request.body) {
+        updateWorkspaceDto =>
+          workspaceService
+            .updateWorkspace(id, updateWorkspaceDto, updatedBy)
+            .map { _ =>
+              Ok(
+                Json.toJson(ApiResponse[Unit]("Workspace updated successfully"))
+              )
+            }
       }
     }
 }

@@ -16,3 +16,4 @@ GET    /api/auth/role         controllers.AuthController.roleRetrieve()
 # Workspace routes
 
 POST   /api/workspaces    controllers.WorkspaceController.create
+PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)

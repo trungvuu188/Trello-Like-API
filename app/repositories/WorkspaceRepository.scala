@@ -46,4 +46,28 @@ class WorkspaceRepository @Inject()(
 
     db.run(action.transactionally)
   }
+
+  /**
+    * Finds a workspace by its ID.
+    * This method retrieves a workspace from the database based on the provided ID.
+    * @param id The ID of the workspace to find.
+    * @return A Future containing an Option with the Workspace entity if found, or None if not found.
+    */
+  def findById(id: Int): Future[Option[Workspace]] = {
+    db.run(workspaces.filter(_.id === id).result.headOption)
+  }
+
+  /**
+    * Updates an existing workspace in the database.
+    * This method updates the workspace details based on the provided Workspace entity.
+    * @param workspace The Workspace entity containing updated data.
+    *                  The ID of the workspace must be set in the entity.
+    * @return A Future containing the number of rows affected by the update operation.
+    *         If the workspace with the specified ID does not exist, it will return 0.
+    *         If the update is successful, it will return 1.
+    */
+  def update(workspace: Workspace): Future[Int] = {
+    val query = workspaces.filter(_.id === workspace.id).update(workspace)
+    db.run(query)
+  }
 }
