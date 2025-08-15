@@ -1,33 +1,18 @@
 package models.tables
 
 import models.entities.Notification
-import models.Enums
-import slick.jdbc.PostgresProfile.api._
+import models.Enums.NotificationType.NotificationType
+import db.MyPostgresProfile.api._
 import slick.lifted.Tag
+
 import java.time.LocalDateTime
 
 class NotificationTable(tag: Tag) extends Table[Notification](tag, "notifications") {
-  implicit val notificationTypeMapper = MappedColumnType.base[Enums.NotificationType, String](
-    {
-      case Enums.TaskAssigned => "task_assigned"
-      case Enums.TaskCompleted => "task_completed"
-      case Enums.DeadlineApproaching => "deadline_approaching"
-      case Enums.CommentAdded => "comment_added"
-      case Enums.TaskMoved => "task_moved"
-    },
-    {
-      case "task_assigned" => Enums.TaskAssigned
-      case "task_completed" => Enums.TaskCompleted
-      case "deadline_approaching" => Enums.DeadlineApproaching
-      case "comment_added" => Enums.CommentAdded
-      case "task_moved" => Enums.TaskMoved
-    }
-  )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId = column[Option[Int]]("user_id")
   def taskId = column[Option[Int]]("task_id")
-  def notificationType = column[Option[Enums.NotificationType]]("type")
+  def notificationType = column[Option[NotificationType]]("type")
   def message = column[Option[String]]("message")
   def isRead = column[Boolean]("is_read")
   def createdAt = column[Option[LocalDateTime]]("created_at")

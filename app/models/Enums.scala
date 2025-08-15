@@ -1,33 +1,36 @@
 package models
 
 object Enums {
-  sealed trait WorkspaceStatus
-  case object Active extends WorkspaceStatus
-  case object Archived extends WorkspaceStatus
 
-  sealed trait UserWorkspaceRole
-  case object Admin extends UserWorkspaceRole
-  case object Member extends UserWorkspaceRole
+  object UserWorkspaceRole extends Enumeration {
+    type UserWorkspaceRole = Value
+    val admin, member = Value
+  }
 
-  sealed trait UserWorkspaceStatus
-  case object Pending extends UserWorkspaceStatus
-  case object WorkspaceActive extends UserWorkspaceStatus
-  case object Inactive extends UserWorkspaceStatus
+  object UserWorkspaceStatus extends Enumeration {
+    type UserWorkspaceStatus = Value
+    val pending, active, inactive = Value
+  }
 
-  sealed trait ProjectStatus
-  case object ProjectActive extends ProjectStatus
-  case object Completed extends ProjectStatus
-  case object ProjectArchived extends ProjectStatus
+  object ProjectStatus extends Enumeration {
+    type ProjectStatus = Value
+    val active, completed, archived = Value
+  }
 
-  sealed trait TaskPriority
-  case object LOW extends TaskPriority
-  case object MEDIUM extends TaskPriority
-  case object HIGH extends TaskPriority
+  object TaskPriority extends Enumeration {
+    type TaskPriority = Value
+    val LOW, MEDIUM, HIGH = Value
+  }
 
-  sealed trait NotificationType
-  case object TaskAssigned extends NotificationType
-  case object TaskCompleted extends NotificationType
-  case object DeadlineApproaching extends NotificationType
-  case object CommentAdded extends NotificationType
-  case object TaskMoved extends NotificationType
+  object NotificationType extends Enumeration {
+    type NotificationType = Value
+    val task_assigned, task_completed, deadline_approaching, comment_added,
+    task_moved = Value
+  }
+
+  object WorkspaceStatus extends Enumeration {
+    type WorkspaceStatus = Value
+    val active, archived = Value
+  }
+
 }

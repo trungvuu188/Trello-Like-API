@@ -1,6 +1,8 @@
 package models.entities
 
-import models.Enums
+import models.Enums.TaskPriority
+import models.Enums.TaskPriority.TaskPriority
+
 import java.time.LocalDateTime
 
 case class Task(
@@ -11,7 +13,7 @@ case class Task(
                  description: Option[String] = None,
                  startDate: Option[LocalDateTime] = None,
                  endDate: Option[LocalDateTime] = None,
-                 priority: Enums.TaskPriority = Enums.MEDIUM,
+                 priority: TaskPriority = TaskPriority.MEDIUM,
                  position: Option[Int] = None,
                  assignedTo: Option[Int] = None,
                  createdBy: Option[Int] = None,

@@ -6,6 +6,7 @@ version := "1.0-SNAPSHOT"
 val playSlickVersion = "6.1.1"
 val postgresVersion = "42.7.3"
 val jacksonVersion = "2.14.3"
+val slickPgVersion   = "0.22.0"
 
 lazy val root = (project in file("."))
     .enablePlugins(PlayScala)
@@ -39,6 +40,8 @@ lazy val root = (project in file("."))
         "com.auth0" % "java-jwt" % "4.5.0",
         // Environment variable loading
         "io.github.cdimascio" % "dotenv-java" % "3.2.0",
+        // Slick extensions for PostgreSQL, to support a series of pg data types and related operators/functions.
+        "com.github.tminglei" %% "slick-pg" % slickPgVersion,
       ),
 
       // CRITICAL: Force Jackson versions to prevent conflicts
@@ -48,7 +51,10 @@ lazy val root = (project in file("."))
         "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
         "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
         "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
-        "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion
+        "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
+
+        // Ensure Scala Parser Combinators is compatible with slick-pg
+        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
       ),
 
       coverageExcludedFiles := ".*ReverseRoutes.scala",
