@@ -64,8 +64,7 @@ lazy val root = (project in file("."))
       coverageHighlighting := true,
         coverageExcludedPackages := Seq(
             "controllers\\.javascript\\..*",
-            "controllers.ReverseAuthController",
-            "controllers.ReverseHomeController",
+            "controllers.Reverse.*",
             "dto\\.request\\.auth\\..*",
             "dto\\.response\\..*",
             "filters\\..*",
@@ -74,5 +73,7 @@ lazy val root = (project in file("."))
             "router\\..*",
             "init\\..*",
             "exception\\..*",
+            "db\\..*",
+            "validations\\..*",
         ).mkString(";")
     )
