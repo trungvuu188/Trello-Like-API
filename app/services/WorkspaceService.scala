@@ -1,6 +1,9 @@
 package services
 
-import dto.request.workspace.CreateWorkspaceRequest
+import dto.request.workspace.{CreateWorkspaceRequest, UpdateWorkspaceRequest}
+import dto.response.workspace.WorkspaceResponse
+import exception.AppException
+import mappers.WorkspaceMapper
 import models.entities.Workspace
 import play.api.http.Status
 import repositories.WorkspaceRepository
@@ -17,17 +20,6 @@ class WorkspaceService @Inject() (
     /** Get all workspaces */
     def getAllWorkspaces: Future[Seq[WorkspaceResponse]] =
         workspaceRepo.getAll().map(WorkspaceMapper.toResponses)
-  def createWorkspace(workspace: CreateWorkspaceRequest, createdBy: Int): Future[Int] = {
-    val now = LocalDateTime.now()
-    val newWorkspace = Workspace(
-      name = workspace.name,
-      description = workspace.description,
-      createdBy = Some(createdBy),
-      createdAt = Some(now),
-      updatedAt = Some(now)
-    )
-    workspaceRepository.createWithOwner(newWorkspace, createdBy)
-  }
 
     /** Get workspace by ID */
     def getWorkspaceById(id: Int): Future[Option[WorkspaceResponse]] =
@@ -36,11 +28,24 @@ class WorkspaceService @Inject() (
     /** Delete a workspace by ID */
     def deleteWorkspace(id: Int): Future[Boolean] =
         workspaceRepo.delete(id).map(_ > 0)
+
+    def createWorkspace(workspace: CreateWorkspaceRequest, createdBy: Int): Future[Int] = {
+        val now = LocalDateTime.now()
+        val newWorkspace = Workspace(
+            name = workspace.name,
+            description = workspace.description,
+            createdBy = Some(createdBy),
+            createdAt = Some(now),
+            updatedAt = Some(now)
+        )
+        workspaceRepo.createWithOwner(newWorkspace, createdBy)
+    }
+
   def updateWorkspace(id: Int,
                       workspace: UpdateWorkspaceRequest,
                       updatedBy: Int): Future[Int] = {
     val now = LocalDateTime.now()
-    val existingWorkspaceOpt = workspaceRepository.findById(id)
+    val existingWorkspaceOpt = workspaceRepo.getWorkspaceById(id)
     existingWorkspaceOpt.flatMap {
       // Workspace exits in database, proceed with update
       case Some(existingWorkspace) =>
@@ -51,7 +56,7 @@ class WorkspaceService @Inject() (
           updatedBy = Some(updatedBy),
           updatedAt = Some(now)
         )
-        workspaceRepository.update(updatedWorkspace)
+        workspaceRepo.update(updatedWorkspace)
       // Workspace does not exist, return an error
       case None =>
         Future.failed(

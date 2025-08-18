@@ -1,6 +1,7 @@
 package repositories
 
-import models.entities.Workspace
+import models.Enums
+import models.entities.{UserWorkspace, Workspace}
 import models.tables.WorkspaceTable
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
@@ -10,19 +11,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class WorkspaceRepository @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    userWorkspaceRepo: UserWorkspaceRepository
 )(implicit ec: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile]{
-class WorkspaceRepository @Inject()(
-  protected val dbConfigProvider: DatabaseConfigProvider,
-  userWorkspaceRepo: UserWorkspaceRepository
-)(implicit ec: ExecutionContext)
-    extends HasDatabaseConfigProvider[JdbcProfile] {
 
     import profile.api._
 
     // Table query object for the Workspaces table
     private val workspaces = TableQuery[WorkspaceTable]
-  private val workspaces = TableRegistry.workspaces
 
     /** Get all workspaces */
     def getAll(): Future[Seq[Workspace]] =
@@ -41,9 +37,6 @@ class WorkspaceRepository @Inject()(
       // Create workspace
       wsId <- (workspaces returning workspaces.map(_.id)) += workspace
 
-    /** Get a workspace by ID */
-    def getWorkspaceById(id: Int): Future[Option[Workspace]] =
-        db.run(workspaces.filter(_.id === id).result.headOption)
       // Create corresponding UserWorkspace entry
       _ <- userWorkspaceRepo.insertAction(
         UserWorkspace(
@@ -54,21 +47,15 @@ class WorkspaceRepository @Inject()(
       )
     } yield wsId
 
-    /** Delete a workspace by ID */
-    def delete(id: Int): Future[Int] =
-        db.run(workspaces.filter(_.id === id).delete)
     db.run(action.transactionally)
   }
+  /** Delete a workspace by ID */
+  def delete(id: Int): Future[Int] =
+    db.run(workspaces.filter(_.id === id).delete)
 
-  /**
-    * Finds a workspace by its ID.
-    * This method retrieves a workspace from the database based on the provided ID.
-    * @param id The ID of the workspace to find.
-    * @return A Future containing an Option with the Workspace entity if found, or None if not found.
-    */
-  def findById(id: Int): Future[Option[Workspace]] = {
+  /** Get a workspace by ID */
+  def getWorkspaceById(id: Int): Future[Option[Workspace]] =
     db.run(workspaces.filter(_.id === id).result.headOption)
-  }
 
   /**
     * Updates an existing workspace in the database.

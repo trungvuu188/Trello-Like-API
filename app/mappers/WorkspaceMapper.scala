@@ -9,7 +9,7 @@ object WorkspaceMapper {
     def toResponse(entity: Workspace): WorkspaceResponse =
         WorkspaceResponse(
             id = entity.id.getOrElse(0),
-            name = entity.name.getOrElse(""),
+            name = entity.name,
             desc = None // or entity.description if exists
         )
 

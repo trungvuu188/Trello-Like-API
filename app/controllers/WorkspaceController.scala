@@ -21,23 +21,20 @@ class WorkspaceController @Inject()(
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc)
     with ValidationHandler {
-class WorkspaceController @Inject() (
-    cc: ControllerComponents,
-    workspaceService: WorkspaceService
-) (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def create(): Action[JsValue] =
     authenticatedActionWithUser.async(parse.json) { request =>
-      val createdBy = request.userToken.userId
-      handleJsonValidation[CreateWorkspaceRequest](request.body) {
-        createWorkspaceDto =>
-          workspaceService.createWorkspace(createWorkspaceDto, createdBy).map {
-            workspaceId =>
-              Created(
-                Json.toJson(ApiResponse[Unit]("Workspace created successfully"))
-              )
-          }
-      }
+        val createdBy = request.userToken.userId
+        handleJsonValidation[CreateWorkspaceRequest](request.body) {
+            createWorkspaceDto =>
+                workspaceService.createWorkspace(createWorkspaceDto, createdBy).map {
+                    workspaceId =>
+                        Created(
+                            Json.toJson(ApiResponse[Unit]("Workspace created successfully"))
+                        )
+                }
+        }
+    }
     /** GET /workspaces */
     def getAllWorkspaces: Action[AnyContent] = Action.async {
         workspaceService.getAllWorkspaces.map { workspaces =>
