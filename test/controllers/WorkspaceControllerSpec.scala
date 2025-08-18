@@ -20,6 +20,25 @@ class WorkspaceControllerSpec
         with ScalaFutures
         with BeforeAndAfterAll {
 
+    // Override config to use H2
+    override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+            .configure(
+    "db.default.driver" -> "org.h2.Driver",
+    "db.default.url" -> "jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
+    "db.default.username" -> "sa",
+    "db.default.password" -> "",
+    "play.evolutions.db.default.enabled" -> "true",
+    "play.evolutions.db.default.autoApply" -> "true",
+    // Override any other database configs that might be set
+    "slick.dbs.default.profile" -> "slick.jdbc.H2Profile$",
+    "slick.dbs.default.db.driver" -> "org.h2.Driver",
+    "slick.dbs.default.db.url" -> "jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
+    "slick.dbs.default.db.user" -> "sa",
+    "slick.dbs.default.db.password" -> ""
+    )
+        .build()
+
     // Get config from app after app init
     lazy val config: Configuration = app.configuration
     lazy val defaultAdminEmail: String =
@@ -28,19 +47,6 @@ class WorkspaceControllerSpec
         config.getOptional[String]("admin.name").getOrElse("Administrator")
     lazy val cookieName: String =
         config.getOptional[String]("cookie.name").getOrElse("auth_token")
-
-    // Override config to use H2
-    override def fakeApplication(): Application =
-        new GuiceApplicationBuilder()
-            .configure(
-                "db.default.driver" -> "org.h2.Driver",
-                "db.default.url" -> "jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false",
-                "db.default.username" -> "sa",
-                "db.default.password" -> "",
-                "play.evolutions.db.default.enabled" -> "true",
-                "play.evolutions.db.default.autoApply" -> "true"
-            )
-            .build()
 
     "WorkspaceController" should {
 
