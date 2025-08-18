@@ -22,7 +22,8 @@ class WorkspaceController @Inject()(
     extends AbstractController(cc)
     with ValidationHandler {
 
-  def create(): Action[JsValue] =
+    /** POST /workspaces */
+    def create(): Action[JsValue] =
     authenticatedActionWithUser.async(parse.json) { request =>
         val createdBy = request.userToken.userId
         handleJsonValidation[CreateWorkspaceRequest](request.body) {
@@ -35,6 +36,7 @@ class WorkspaceController @Inject()(
                 }
         }
     }
+
     /** GET /workspaces */
     def getAllWorkspaces: Action[AnyContent] = Action.async {
         workspaceService.getAllWorkspaces.map { workspaces =>
@@ -62,7 +64,9 @@ class WorkspaceController @Inject()(
                 NotFound(Json.toJson(ApiResponse.errorNoData("Workspace not found or could not be deleted")))
         }
     }
-  def update(id: Int): Action[JsValue] =
+
+    /** PUT /workspaces/:id */
+    def update(id: Int): Action[JsValue] =
     authenticatedActionWithUser.async(parse.json) { request =>
       val updatedBy = request.userToken.userId
       handleJsonValidation[UpdateWorkspaceRequest](request.body) {
