@@ -5,9 +5,15 @@ import slick.lifted.Tag
 import db.MyPostgresProfile.api._
 import models.Enums.WorkspaceStatus.WorkspaceStatus
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 class WorkspaceTable(tag: Tag) extends Table[Workspace](tag, "workspaces") {
+
+  // Custom column type for Instant
+  implicit val instantColumnType = MappedColumnType.base[Instant, java.sql.Timestamp](
+    instant => java.sql.Timestamp.from(instant),
+    timestamp => timestamp.toInstant
+  )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
@@ -19,9 +25,9 @@ class WorkspaceTable(tag: Tag) extends Table[Workspace](tag, "workspaces") {
 
   def createdBy = column[Option[Int]]("created_by")
 
-  def createdAt = column[Option[LocalDateTime]]("created_at")
+  def createdAt = column[Option[Instant]]("created_at")
 
-  def updatedAt = column[Option[LocalDateTime]]("updated_at")
+  def updatedAt = column[Option[Instant]]("updated_at")
 
   def updatedBy = column[Option[Int]]("updated_by")
 

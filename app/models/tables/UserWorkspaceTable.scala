@@ -6,9 +6,15 @@ import models.Enums.UserWorkspaceStatus.UserWorkspaceStatus
 import db.MyPostgresProfile.api._
 import slick.lifted.Tag
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 class UserWorkspaceTable(tag: Tag) extends Table[UserWorkspace](tag, "user_workspaces") {
+
+  // Custom column type for Instant
+  implicit val instantColumnType = MappedColumnType.base[Instant, java.sql.Timestamp](
+    instant => java.sql.Timestamp.from(instant),
+    timestamp => timestamp.toInstant
+  )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId = column[Option[Int]]("user_id")
@@ -16,7 +22,7 @@ class UserWorkspaceTable(tag: Tag) extends Table[UserWorkspace](tag, "user_works
   def role = column[Option[UserWorkspaceRole]]("role")
   def status = column[UserWorkspaceStatus]("status")
   def invitedBy = column[Option[Int]]("invited_by")
-  def joinedAt = column[Option[LocalDateTime]]("joined_at")
+  def joinedAt = column[Option[Instant]]("joined_at")
 
   def * = (id.?, userId, workspaceId, role, status, invitedBy, joinedAt) <> ((UserWorkspace.apply _).tupled, UserWorkspace.unapply)
 

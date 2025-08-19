@@ -149,18 +149,18 @@ class AuthController @Inject()(
       case JsSuccess(loginReq, _) ⇒ Right(loginReq)
       case JsError(validationErrors) ⇒
         val errors = validationErrors.flatMap { case (path, errs) =>
-                                errs.map { err =>
-                                    val field = path.toString().replaceAll("[\\[\\]/]", "")
-                                    val message = err.message match {
-                                        case "error.minLength" => s"$field is too short"
-                                        case "error.maxLength" => s"$field is too long"
-                                        case "error.email" => s"$field is not valid"
-                                        case "error.path.missing" => s"$field is required"
-                                        case other => s"$field: $other"
-                                    }
-                                    message
-                                }
-                            }.toList
+          errs.map { err =>
+            val field = path.toString().replaceAll("[\\[\\]/]", "")
+            val message = err.message match {
+                case "error.minLength" => s"$field is too short"
+                case "error.maxLength" => s"$field is too long"
+                case "error.email" => s"$field is not valid"
+                case "error.path.missing" => s"$field is required"
+                case other => s"$field: $other"
+            }
+            message
+          }
+      }.toList
         Left(errors.head)
     }
   }

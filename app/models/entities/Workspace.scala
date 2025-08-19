@@ -5,18 +5,18 @@ import models.Enums.UserWorkspaceStatus.UserWorkspaceStatus
 import models.Enums.{UserWorkspaceStatus, WorkspaceStatus}
 import models.Enums.WorkspaceStatus.WorkspaceStatus
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 case class Workspace(
-                      id: Option[Int] = None,
-                      name: String,
-                      description: Option[String] = None,
-                      status: WorkspaceStatus = WorkspaceStatus.active,
-                      createdBy: Option[Int] = None,
-                      createdAt: Option[LocalDateTime] = None,
-                      updatedAt: Option[LocalDateTime] = None,
-                      updatedBy: Option[Int] = None,
-                      isDeleted: Boolean = false
+                        id: Option[Int] = None,
+                        name: String,
+                        description: Option[String] = None,
+                        status: WorkspaceStatus = WorkspaceStatus.active,
+                        createdBy: Option[Int] = None,
+                        createdAt: Option[Instant] = None,
+                        updatedAt: Option[Instant] = None,
+                        updatedBy: Option[Int] = None,
+                        isDeleted: Boolean = false
                     )
 
 case class UserWorkspace(
@@ -26,5 +26,5 @@ case class UserWorkspace(
                           role: Option[UserWorkspaceRole] = None,
                           status: UserWorkspaceStatus = UserWorkspaceStatus.active,
                           invitedBy: Option[Int] = None,
-                          joinedAt: Option[LocalDateTime] = None
+                          joinedAt: Option[Instant] = None
                         )
