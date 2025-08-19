@@ -23,6 +23,7 @@ class WorkspaceRepository @Inject() (
     /** Get all workspaces */
     def getAll(): Future[Seq[Workspace]] =
         db.run(workspaces.result)
+
   /**
     * Creates a new workspace and associates it with the specified user as an owner.
     * This method performs the creation of both the workspace and the corresponding UserWorkspace entry

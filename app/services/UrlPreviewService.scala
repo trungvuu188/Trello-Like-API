@@ -2,29 +2,34 @@ package services
 
 import javax.inject._
 import play.api.libs.ws._
+
 import scala.concurrent.{ExecutionContext, Future}
 import controllers.UrlPreviewData
+
 import java.net.URL
 import org.jsoup.Jsoup
+import play.api.Configuration
+
 import scala.concurrent.duration._
 
 @Singleton
-class UrlPreviewService @Inject()(ws: WSClient)(implicit ec: ExecutionContext) {
+class UrlPreviewService @Inject()(ws: WSClient, config: Configuration)(implicit ec: ExecutionContext) {
 
     def fetchPreview(url: String): Future[UrlPreviewData] = {
         fetchFromMultipleSources(url)
     }
 
     private def fetchFromMultipleSources(url: String): Future[UrlPreviewData] = {
+            val apiKey = config.get[String]("linkpreview.api.key")
         // Try LinkPreview.net first (if you have an API key)
-        // fetchFromLinkPreviewNet(url).recoverWith {
-        //   case _ =>
-        fetchFromJsonLink(url).recoverWith {
-            case _ => fetchFromOpenGraph(url)
-        }.recoverWith {
-            case _ => Future.successful(createBasicPreview(url))
-        }
-        // }
+         fetchFromLinkPreviewNet(url, apiKey).recoverWith {
+           case _ =>
+            fetchFromJsonLink(url).recoverWith {
+                case _ => fetchFromOpenGraph(url)
+            }.recoverWith {
+                case _ => Future.successful(createBasicPreview(url))
+            }
+         }
     }
 
     private def fetchFromLinkPreviewNet(url: String, apiKey: String): Future[UrlPreviewData] = {
