@@ -1,6 +1,8 @@
 package models.entities
 
-import models.Enums
+import models.Enums.ProjectStatus
+import models.Enums.ProjectStatus.ProjectStatus
+
 import java.time.LocalDateTime
 
 case class Project(
@@ -8,7 +10,7 @@ case class Project(
                     name: Option[String] = None,
                     description: Option[String] = None,
                     workspaceId: Option[Int] = None,
-                    status: Enums.ProjectStatus = Enums.ProjectActive,
+                    status: ProjectStatus = ProjectStatus.active,
                     createdBy: Option[Int] = None,
                     updatedBy: Option[Int] = None,
                     createdAt: Option[LocalDateTime] = None,

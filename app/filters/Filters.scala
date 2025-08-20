@@ -14,7 +14,7 @@ class Filters @Inject()(
 ) extends HttpFilters {
 
     override val filters = Seq(
-        corsFilter,           // Handle CORS first
+        corsFilter,             // Handle CORS first
         securityHeadersFilter, // Add security headers
         apiAccessFilter,      // Authentication & Authorization
         gzipFilter           // Compress responses (built-in Play filter)

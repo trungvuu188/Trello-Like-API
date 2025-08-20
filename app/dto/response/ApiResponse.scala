@@ -4,7 +4,8 @@ import play.api.libs.json._
 
 case class ApiResponse[T](
                            message: String,
-                           data: Option[T] = None
+                           data: Option[T] = None,
+                           errors: Option[List[FieldError]] = None
                          )
 
 object ApiResponse {
@@ -31,4 +32,10 @@ object ApiResponse {
 
   def withoutData[T](message: String): ApiResponse[T] =
     ApiResponse(message, None)
+}
+
+// Field error of dto validation
+case class FieldError(field: String, message: String)
+object FieldError {
+  implicit val format: Format[FieldError] = Json.format[FieldError]
 }

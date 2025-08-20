@@ -1,13 +1,14 @@
 package models.entities
 
-import models.Enums
+import models.Enums.NotificationType.NotificationType
+
 import java.time.LocalDateTime
 
 case class Notification(
                          id: Option[Int] = None,
                          userId: Option[Int] = None,
                          taskId: Option[Int] = None,
-                         `type`: Option[Enums.NotificationType] = None,
+                         `type`: Option[NotificationType] = None,
                          message: Option[String] = None,
                          isRead: Boolean = false,
                          createdAt: Option[LocalDateTime] = None

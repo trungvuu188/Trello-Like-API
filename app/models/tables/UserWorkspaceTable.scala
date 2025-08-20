@@ -1,43 +1,28 @@
 package models.tables
 
 import models.entities.UserWorkspace
-import models.Enums
-import slick.jdbc.PostgresProfile.api._
+import models.Enums.UserWorkspaceRole.UserWorkspaceRole
+import models.Enums.UserWorkspaceStatus.UserWorkspaceStatus
+import db.MyPostgresProfile.api._
 import slick.lifted.Tag
-import java.time.LocalDateTime
+
+import java.time.{Instant, LocalDateTime}
 
 class UserWorkspaceTable(tag: Tag) extends Table[UserWorkspace](tag, "user_workspaces") {
-  implicit val userWorkspaceRoleMapper = MappedColumnType.base[Enums.UserWorkspaceRole, String](
-    {
-      case Enums.Admin => "admin"
-      case Enums.Member => "member"
-    },
-    {
-      case "admin" => Enums.Admin
-      case "member" => Enums.Member
-    }
-  )
 
-  implicit val userWorkspaceStatusMapper = MappedColumnType.base[Enums.UserWorkspaceStatus, String](
-    {
-      case Enums.Pending => "pending"
-      case Enums.WorkspaceActive => "active"
-      case Enums.Inactive => "inactive"
-    },
-    {
-      case "pending" => Enums.Pending
-      case "active" => Enums.WorkspaceActive
-      case "inactive" => Enums.Inactive
-    }
+  // Custom column type for Instant
+  implicit val instantColumnType = MappedColumnType.base[Instant, java.sql.Timestamp](
+    instant => java.sql.Timestamp.from(instant),
+    timestamp => timestamp.toInstant
   )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId = column[Option[Int]]("user_id")
   def workspaceId = column[Option[Int]]("workspace_id")
-  def role = column[Option[Enums.UserWorkspaceRole]]("role")
-  def status = column[Enums.UserWorkspaceStatus]("status")
+  def role = column[Option[UserWorkspaceRole]]("role")
+  def status = column[UserWorkspaceStatus]("status")
   def invitedBy = column[Option[Int]]("invited_by")
-  def joinedAt = column[Option[LocalDateTime]]("joined_at")
+  def joinedAt = column[Option[Instant]]("joined_at")
 
   def * = (id.?, userId, workspaceId, role, status, invitedBy, joinedAt) <> ((UserWorkspace.apply _).tupled, UserWorkspace.unapply)
 

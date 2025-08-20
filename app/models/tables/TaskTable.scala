@@ -1,25 +1,13 @@
 package models.tables
 
 import models.entities.Task
-import models.Enums
-import slick.jdbc.PostgresProfile.api._
+import models.Enums.TaskPriority.TaskPriority
+import db.MyPostgresProfile.api._
 import slick.lifted.Tag
+
 import java.time.LocalDateTime
 
 class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
-  implicit val taskPriorityMapper = MappedColumnType.base[Enums.TaskPriority, String](
-    {
-      case Enums.LOW => "LOW"
-      case Enums.MEDIUM => "MEDIUM"
-      case Enums.HIGH => "HIGH"
-    },
-    {
-      case "LOW" => Enums.LOW
-      case "MEDIUM" => Enums.MEDIUM
-      case "HIGH" => Enums.HIGH
-    }
-  )
-
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def projectId = column[Option[Int]]("project_id")
   def columnId = column[Option[Int]]("column_id")
@@ -27,7 +15,7 @@ class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
   def description = column[Option[String]]("description")
   def startDate = column[Option[LocalDateTime]]("start_date")
   def endDate = column[Option[LocalDateTime]]("end_date")
-  def priority = column[Enums.TaskPriority]("priority")
+  def priority = column[TaskPriority]("priority")
   def position = column[Option[Int]]("position")
   def assignedTo = column[Option[Int]]("assigned_to")
   def createdBy = column[Option[Int]]("created_by")

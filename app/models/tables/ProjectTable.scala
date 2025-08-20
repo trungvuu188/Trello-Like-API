@@ -1,30 +1,19 @@
 package models.tables
 
 import models.entities.Project
-import models.Enums
-import slick.jdbc.PostgresProfile.api._
+import db.MyPostgresProfile.api._
+import models.Enums.ProjectStatus.ProjectStatus
 import slick.lifted.Tag
+
 import java.time.LocalDateTime
 
 class ProjectTable(tag: Tag) extends Table[Project](tag, "projects") {
-  implicit val projectStatusMapper = MappedColumnType.base[Enums.ProjectStatus, String](
-    {
-      case Enums.ProjectActive => "active"
-      case Enums.Completed => "completed"
-      case Enums.ProjectArchived => "archived"
-    },
-    {
-      case "active" => Enums.ProjectActive
-      case "completed" => Enums.Completed
-      case "archived" => Enums.ProjectArchived
-    }
-  )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[Option[String]]("name")
   def description = column[Option[String]]("description")
   def workspaceId = column[Option[Int]]("workspace_id")
-  def status = column[Enums.ProjectStatus]("status")
+  def status = column[ProjectStatus]("status")
   def createdBy = column[Option[Int]]("created_by")
   def updatedBy = column[Option[Int]]("updated_by")
   def createdAt = column[Option[LocalDateTime]]("created_at")

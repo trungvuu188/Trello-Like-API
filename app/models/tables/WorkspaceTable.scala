@@ -1,38 +1,38 @@
 package models.tables
 
-import models.entities.{UserWorkspace, Workspace}
-import models.Enums
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-import slick.jdbc.PostgresProfile.api._
+import models.entities.Workspace
 import slick.lifted.Tag
+import db.MyPostgresProfile.api._
+import models.Enums.WorkspaceStatus.WorkspaceStatus
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 class WorkspaceTable(tag: Tag) extends Table[Workspace](tag, "workspaces") {
-  implicit val workspaceStatusMapper = MappedColumnType.base[Enums.WorkspaceStatus, String](
-    {
-      case Enums.Active => "active"
-      case Enums.Archived => "archived"
-    },
-    {
-      case "active" => Enums.Active
-      case "archived" => Enums.Archived
-    }
+
+  // Custom column type for Instant
+  implicit val instantColumnType = MappedColumnType.base[Instant, java.sql.Timestamp](
+    instant => java.sql.Timestamp.from(instant),
+    timestamp => timestamp.toInstant
   )
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-  def name = column[Option[String]]("name")
+  def name = column[String]("name")
 
-  def status = column[Enums.WorkspaceStatus]("status")
+  def description = column[Option[String]]("description")
+
+  def status = column[WorkspaceStatus]("status")
 
   def createdBy = column[Option[Int]]("created_by")
 
-  def createdAt = column[Option[LocalDateTime]]("created_at")
+  def createdAt = column[Option[Instant]]("created_at")
 
-  def updatedAt = column[Option[LocalDateTime]]("updated_at")
+  def updatedAt = column[Option[Instant]]("updated_at")
 
-  def * = (id.?, name, status, createdBy, createdAt, updatedAt) <> ((Workspace.apply _).tupled, Workspace.unapply)
+  def updatedBy = column[Option[Int]]("updated_by")
+
+  def isDeleted = column[Boolean]("is_deleted", O.Default(false))
+
+  def * = (id.?, name, description, status, createdBy, createdAt, updatedAt, updatedBy, isDeleted) <> ((Workspace.apply _).tupled, Workspace.unapply)
 
 }
