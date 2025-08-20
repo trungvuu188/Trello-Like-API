@@ -10,7 +10,7 @@ object WorkspaceMapper {
         WorkspaceResponse(
             id = entity.id.getOrElse(0),
             name = entity.name,
-            desc = None // or entity.description if exists
+            desc = entity.description
         )
 
     /** Map a sequence of Workspace entities to responses */
