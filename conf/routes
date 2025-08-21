@@ -28,4 +28,5 @@ POST   /api/workspaces    controllers.WorkspaceController.create
 PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)
 
 # Project routes
-POST   /api/projects    controllers.ProjectController.create
+POST   /api/workspaces/:workspaceId/projects    controllers.ProjectController.create(workspaceId: Int)
+GET    /api/workspaces/:workspaceId/projects    controllers.ProjectController.getAll(workspaceId: Int)

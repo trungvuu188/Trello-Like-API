@@ -1,6 +1,7 @@
 package services
 
 import dto.request.project.CreateProjectRequest
+import dto.response.project.ProjectSummariesResponse
 import exception.AppException
 import models.Enums.ProjectVisibility
 import models.entities.Project
@@ -22,17 +23,20 @@ class ProjectService @Inject()(
   import profile.api._
 
   def createProject(req: CreateProjectRequest,
+                    workspaceId: Int,
                     createdBy: Int): scala.concurrent.Future[Int] = {
 
     val action = for {
-      exists <- workspaceRepository.existById(req.workspaceId)
+      // check user is part of the active workspace
+      existsUserInActiveWorkspace <- workspaceRepository
+        .isUserInActiveWorkspace(workspaceId, createdBy)
 
-      projectId <- if (exists) {
+      projectId <- if (existsUserInActiveWorkspace) {
         val newProject = Project(
           name = req.name,
           visibility =
             ProjectVisibility.withName(req.visibility.getOrElse("workspace")),
-          workspaceId = req.workspaceId,
+          workspaceId = workspaceId,
           createdBy = Some(createdBy),
           updatedBy = Some(createdBy)
         )
@@ -48,5 +52,29 @@ class ProjectService @Inject()(
     } yield projectId
 
     db.run(action.transactionally)
+  }
+
+  def getProjectsByWorkspaceAndUser(
+    workspaceId: Int,
+    userId: Int
+  ): scala.concurrent.Future[Seq[ProjectSummariesResponse]] = {
+
+    val action = for {
+      existsUserInActiveWorkspace <- workspaceRepository
+        .isUserInActiveWorkspace(workspaceId, userId)
+
+      projects <- if (existsUserInActiveWorkspace) {
+        projectRepository.findByWorkspace(workspaceId)
+      } else {
+        DBIO.failed(
+          AppException(
+            message = "Workspace not found",
+            statusCode = Status.NOT_FOUND
+          )
+        )
+      }
+    } yield projects
+
+    db.run(action)
   }
 }

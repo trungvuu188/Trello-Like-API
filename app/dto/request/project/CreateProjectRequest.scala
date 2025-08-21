@@ -12,7 +12,6 @@ import validations.CustomValidators.{
 }
 
 case class CreateProjectRequest(name: String,
-                                workspaceId: Int,
                                 visibility: Option[String] = Some("workspace"))
 
 object CreateProjectRequest {
@@ -28,10 +27,6 @@ object CreateProjectRequest {
         ),
         _.trim
       ) and
-        validateRequiredField[Int](
-          "workspaceId",
-          ErrorMessages.required("Workspace ID")
-        ) and
         validateOptionalField[String]("visibility")
     )(CreateProjectRequest.apply _)
 

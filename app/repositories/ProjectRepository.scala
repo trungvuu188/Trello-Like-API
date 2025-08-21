@@ -1,6 +1,6 @@
 package repositories
 
-import models.Enums
+import dto.response.project.ProjectSummariesResponse
 import models.Enums.UserProjectRole
 import models.entities.{Project, UserProject}
 import models.tables.{ProjectTable, UserProjectTable}
@@ -24,10 +24,8 @@ class ProjectRepository @Inject()(
   def createProjectWithOwner(project: Project,
                              ownerId: Int): DBIO[Int] = {
     for {
-      // Insert project -> return với id
       projectId <- (projects returning projects.map(_.id)) += project
 
-      // Tạo UserProject với role Owner
       userProject = UserProject(
         userId = ownerId,
         projectId = projectId,
@@ -36,5 +34,9 @@ class ProjectRepository @Inject()(
       )
       _ <- userProjects += userProject
     } yield projectId
+  }
+
+  def findByWorkspace(workspaceId: Int): DBIO[Seq[ProjectSummariesResponse]] = {
+    projects.filter(_.workspaceId === workspaceId).map(_.summary).result
   }
 }

@@ -120,10 +120,10 @@ class WorkspaceRepository @Inject()(
     } yield deleteCount
   }
 
-  def existById(id: Int): DBIO[Boolean] = {
-    workspaces
-      .filter(w => w.id === id && !w.isDeleted)
-      .exists
-      .result
+  def isUserInActiveWorkspace(workspaceId: Int, userId: Int): DBIO[Boolean] = {
+    (for {
+      uw <- userWorkspaces if uw.workspaceId === workspaceId && uw.userId === userId
+      w  <- workspaces if w.id === workspaceId && !w.isDeleted
+    } yield ()).exists.result
   }
 }

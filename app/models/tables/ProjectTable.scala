@@ -2,6 +2,7 @@ package models.tables
 
 import models.entities.Project
 import db.MyPostgresProfile.api._
+import dto.response.project.ProjectSummariesResponse
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.ProjectVisibility.ProjectVisibility
 import slick.lifted.Tag
@@ -29,4 +30,6 @@ class ProjectTable(tag: Tag) extends Table[Project](tag, "projects") {
   def workspaceFk = foreignKey("projects_workspace_id_fkey", workspaceId, TableQuery[WorkspaceTable])(_.id)
   def createdByFk = foreignKey("projects_created_by_fkey", createdBy, TableQuery[UserTable])(_.id.?)
   def updatedByFk = foreignKey("projects_updated_by_fkey", updatedBy, TableQuery[UserTable])(_.id.?)
+
+  def summary = (id, name) <> ((ProjectSummariesResponse.apply _).tupled, ProjectSummariesResponse.unapply)
 }
