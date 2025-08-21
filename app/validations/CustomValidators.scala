@@ -56,7 +56,7 @@ object CustomValidators {
   def validateRequiredField[T](
     fieldName: String,
     requiredMessage: String = "",
-    validations: Seq[(T => Boolean, String)],
+    validations: Seq[(T => Boolean, String)] = Seq.empty,
     transform: T => T = (t: T) => t
   )(implicit reads: Reads[T]): Reads[T] = {
     val finalRequiredMessage =
@@ -122,7 +122,7 @@ object CustomValidators {
     */
   def validateOptionalField[T](
     fieldName: String,
-    validations: Seq[(T => Boolean, String)],
+    validations: Seq[(T => Boolean, String)] = Seq.empty,
     transform: T => T = (t: T) => t
   )(implicit reads: Reads[T]): Reads[Option[T]] = {
     (JsPath \ fieldName).readNullable[T].map(_.map(transform)).flatMap {

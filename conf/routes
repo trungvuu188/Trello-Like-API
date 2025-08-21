@@ -26,3 +26,6 @@ OPTIONS /api/url-preview        controllers.UrlPreviewController.previewOptions(
 
 POST   /api/workspaces    controllers.WorkspaceController.create
 PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)
+
+# Project routes
+POST   /api/projects    controllers.ProjectController.create

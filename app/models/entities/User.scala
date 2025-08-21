@@ -1,6 +1,9 @@
 package models.entities
 
-import java.time.LocalDateTime
+import models.Enums.UserProjectRole
+import models.Enums.UserProjectRole.UserProjectRole
+
+import java.time.{Instant, LocalDateTime}
 
 case class Role(id: Option[Int] = None, name: String)
 
@@ -14,3 +17,10 @@ case class User(
     createdAt: LocalDateTime = LocalDateTime.now(),
     updatedAt: LocalDateTime = LocalDateTime.now()
 )
+
+case class UserProject(id: Option[Int] = None,
+                       userId: Int,
+                       projectId: Int,
+                       role: UserProjectRole = UserProjectRole.member,
+                       invitedBy: Option[Int] = None,
+                       joinedAt: Instant = Instant.now())
