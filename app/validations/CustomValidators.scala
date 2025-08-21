@@ -167,6 +167,50 @@ object CustomValidators {
         }
     }
   }
+  /**
+    * Validates a required field against an enumeration.
+    *
+    * This method checks if the field is present, not empty, and matches one of
+    * the enumeration values. If the value is invalid, it returns a custom error
+    * message indicating the allowed values.
+    *
+    * @param field
+    *   The JSON field name to validate.
+    * @param enum
+    *   The enumeration to validate against.
+    * @param requiredMsg
+    *   Custom error message when the field is missing or empty.
+    * @param invalidMsgTmpl
+    *   Template for the error message when the value is not a valid enum value.
+    *
+    * @tparam E
+    *   The type of the enumeration.
+    *
+    * @return
+    *   A `Reads[E#Value]` that validates the field against the enum.
+    */
+  def validateRequiredEnum[E <: Enumeration](
+    field: String,
+    enum: E,
+    requiredMsg: String,
+    invalidMsgTmpl: String
+  ): Reads[E#Value] = {
+    val path = JsPath \ field
+
+    path
+      .read[String]
+      .filter(JsonValidationError(requiredMsg))(_.trim.nonEmpty)
+      .flatMap { raw =>
+        val s = raw.trim
+        enum.values.find(_.toString.equalsIgnoreCase(s)) match {
+          case Some(v) => Reads.pure(v)
+          case None =>
+            val allowed = enum.values.mkString(", ")
+            val msg = invalidMsgTmpl.format(allowed)
+            Reads(_ => JsError(path, JsonValidationError(msg)))
+        }
+      }
+  }
 
   /**
     * Validation helper: ensures a string is not empty (after trimming).

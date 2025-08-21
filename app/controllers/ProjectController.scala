@@ -1,6 +1,6 @@
 package controllers
 
-import dto.request.project.CreateProjectRequest
+import dto.request.project.{CreateProjectRequest, UpdateProjectStatusRequest}
 import dto.response.ApiResponse
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
@@ -61,4 +61,34 @@ class ProjectController @Inject()(
           Ok(Json.toJson(apiResponse))
       }
     }
+
+  /** PATCH /workspace/projects/:projectId/complete */
+  def completeProject(projectId: Int): Action[AnyContent] = {
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.completeProject(projectId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Project completed successfully")))
+      }
+    }
+  }
+
+  /** PATCH /workspace/projects/:projectId/delete */
+  def deleteProject(projectId: Int): Action[AnyContent] = {
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.deleteProject(projectId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Project deleted successfully")))
+      }
+    }
+  }
+
+  /** PATCH /workspace/projects/:projectId/reopen */
+  def reopenProject(projectId: Int): Action[AnyContent] = {
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.reopenProject(projectId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Project reopened successfully")))
+      }
+    }
+  }
 }

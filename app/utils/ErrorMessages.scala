@@ -23,4 +23,7 @@ object ErrorMessages {
 
   def tooShort(field: String, min: Int)(implicit messages: Messages): String =
     messages("validate.tooShort", field, min)
+
+  def invalidEnum(field: String, allowed: Iterable[String])(implicit messages: Messages): String =
+    messages("validate.invalidEnum", field, allowed.mkString(", "))
 }

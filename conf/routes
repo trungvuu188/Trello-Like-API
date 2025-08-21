@@ -30,3 +30,6 @@ PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)
 # Project routes
 POST   /api/workspaces/:workspaceId/projects    controllers.ProjectController.create(workspaceId: Int)
 GET    /api/workspaces/:workspaceId/projects    controllers.ProjectController.getAll(workspaceId: Int)
+PATCH   /api/workspaces/projects/:projectId/complete   controllers.ProjectController.completeProject(projectId: Int)
+PATCH   /api/workspaces/projects/:projectId/delete     controllers.ProjectController.deleteProject(projectId: Int)
+PATCH   /api/workspaces/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)

@@ -1,6 +1,8 @@
 package repositories
 
+import db.MyPostgresProfile.api.{projectStatusTypeMapper, userProjectRoleTypeMapper}
 import dto.response.project.ProjectSummariesResponse
+import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.UserProjectRole
 import models.entities.{Project, UserProject}
 import models.tables.{ProjectTable, UserProjectTable}
@@ -21,8 +23,7 @@ class ProjectRepository @Inject()(
   private val projects = TableQuery[ProjectTable]
   private val userProjects = TableQuery[UserProjectTable]
 
-  def createProjectWithOwner(project: Project,
-                             ownerId: Int): DBIO[Int] = {
+  def createProjectWithOwner(project: Project, ownerId: Int): DBIO[Int] = {
     for {
       projectId <- (projects returning projects.map(_.id)) += project
 
@@ -38,5 +39,15 @@ class ProjectRepository @Inject()(
 
   def findByWorkspace(workspaceId: Int): DBIO[Seq[ProjectSummariesResponse]] = {
     projects.filter(_.workspaceId === workspaceId).map(_.summary).result
+  }
+  def findStatusIfOwner(projectId: Int, userId: Int): DBIO[Option[ProjectStatus]] = {
+    (for {
+      p  <- projects if p.id === projectId
+      up <- userProjects if up.projectId === p.id && up.userId === userId && up.role === UserProjectRole.owner
+    } yield p.status).result.headOption
+  }
+
+  def updateStatus(projectId: Int, status: ProjectStatus): DBIO[Int] = {
+    projects.filter(_.id === projectId).map(_.status).update(status)
   }
 }

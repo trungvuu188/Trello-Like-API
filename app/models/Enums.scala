@@ -19,7 +19,7 @@ object Enums {
 
   object ProjectStatus extends Enumeration {
     type ProjectStatus = Value
-    val active, completed = Value
+    val active, completed, deleted = Value
   }
 
   object TaskPriority extends Enumeration {
