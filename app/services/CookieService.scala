@@ -27,7 +27,6 @@ class CookieService @Inject()(config: Configuration) {
             value = token,
             maxAge = Some(maxAge),
             path = "/",
-            domain = None, // Will use current domain
             secure = secure,
             httpOnly = httpOnly,
             sameSite = sameSite
@@ -40,7 +39,6 @@ class CookieService @Inject()(config: Configuration) {
             value = "",
             maxAge = Some(0), // Expire immediately
             path = "/",
-            domain = None,
             secure = secure,
             httpOnly = httpOnly,
             sameSite = sameSite
