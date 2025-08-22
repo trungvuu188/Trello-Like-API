@@ -33,3 +33,4 @@ GET    /api/workspaces/:workspaceId/projects    controllers.ProjectController.ge
 PATCH   /api/workspaces/projects/:projectId/complete   controllers.ProjectController.completeProject(projectId: Int)
 PATCH   /api/workspaces/projects/:projectId/delete     controllers.ProjectController.deleteProject(projectId: Int)
 PATCH   /api/workspaces/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
+GET    /api/workspaces/projects/completed       controllers.ProjectController.getCompletedProjectsByUser

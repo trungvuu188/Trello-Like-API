@@ -1,6 +1,6 @@
 package controllers
 
-import dto.request.project.{CreateProjectRequest, UpdateProjectStatusRequest}
+import dto.request.project.CreateProjectRequest
 import dto.response.ApiResponse
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
@@ -91,4 +91,15 @@ class ProjectController @Inject()(
       }
     }
   }
+
+  /** GET /workspaces/projects/completed */
+  def getCompletedProjectsByUser: Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.getCompletedProjectsByUserId(userId).map { projects =>
+        val apiResponse =
+          ApiResponse.success("Completed projects retrieved", projects)
+        Ok(Json.toJson(apiResponse))
+      }
+    }
 }

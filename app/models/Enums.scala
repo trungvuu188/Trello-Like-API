@@ -1,5 +1,14 @@
 package models
 
+import play.api.libs.json.{
+  Format,
+  JsError,
+  JsResult,
+  JsString,
+  JsSuccess,
+  JsValue
+}
+
 object Enums {
 
   object UserWorkspaceRole extends Enumeration {
@@ -20,6 +29,20 @@ object Enums {
   object ProjectStatus extends Enumeration {
     type ProjectStatus = Value
     val active, completed, deleted = Value
+
+    implicit val format: Format[Value] = new Format[Value] {
+      def writes(o: Value): JsValue = JsString(o.toString)
+      def reads(json: JsValue): JsResult[Value] = json match {
+        case JsString(s) =>
+          try {
+            JsSuccess(ProjectStatus.withName(s))
+          } catch {
+            case _: NoSuchElementException =>
+              JsError(s"Invalid ProjectStatus: $s")
+          }
+        case _ => JsError("String value expected for ProjectStatus")
+      }
+    }
   }
 
   object TaskPriority extends Enumeration {

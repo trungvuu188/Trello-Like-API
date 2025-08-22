@@ -131,4 +131,10 @@ class ProjectService @Inject()(
       errorMsg = "Only completed or deleted projects can be reopened"
     )
 
+  def getCompletedProjectsByUserId(
+    userId: Int
+  ): Future[Seq[dto.response.project.CompletedProjectSummariesResponse]] = {
+    db.run(projectRepository.findCompletedProjectsByUserId(userId))
+  }
+
 }
