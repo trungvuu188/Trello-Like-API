@@ -3,7 +3,7 @@ package repositories
 import db.MyPostgresProfile.api.{projectStatusTypeMapper, userProjectRoleTypeMapper}
 import dto.response.project.ProjectSummariesResponse
 import models.Enums.ProjectStatus.ProjectStatus
-import models.Enums.UserProjectRole
+import models.Enums.{ProjectStatus, UserProjectRole}
 import models.entities.{Project, UserProject}
 import models.tables.{ProjectTable, UserProjectTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -37,13 +37,21 @@ class ProjectRepository @Inject()(
     } yield projectId
   }
 
-  def findByWorkspace(workspaceId: Int): DBIO[Seq[ProjectSummariesResponse]] = {
-    projects.filter(_.workspaceId === workspaceId).map(_.summary).result
+  def findNonDeletedByWorkspace(workspaceId: Int): DBIO[Seq[ProjectSummariesResponse]] = {
+    projects
+      .filter(
+        p => p.workspaceId === workspaceId && p.status =!= ProjectStatus.deleted
+      )
+      .map(_.summary)
+      .result
   }
-  def findStatusIfOwner(projectId: Int, userId: Int): DBIO[Option[ProjectStatus]] = {
+
+  def findStatusIfOwner(projectId: Int,
+                        userId: Int): DBIO[Option[ProjectStatus]] = {
     (for {
-      p  <- projects if p.id === projectId
-      up <- userProjects if up.projectId === p.id && up.userId === userId && up.role === UserProjectRole.owner
+      p <- projects if p.id === projectId
+      up <- userProjects
+      if up.projectId === p.id && up.userId === userId && up.role === UserProjectRole.owner
     } yield p.status).result.headOption
   }
 

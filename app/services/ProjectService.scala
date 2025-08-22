@@ -65,7 +65,7 @@ class ProjectService @Inject()(
         .isUserInActiveWorkspace(workspaceId, userId)
 
       projects <- if (existsUserInActiveWorkspace) {
-        projectRepository.findByWorkspace(workspaceId)
+        projectRepository.findNonDeletedByWorkspace(workspaceId)
       } else {
         DBIO.failed(
           AppException(
@@ -79,51 +79,56 @@ class ProjectService @Inject()(
     db.run(action)
   }
 
-  def completeProject(projectId: Int, userId: Int): Future[Int] = {
+  def completeProject(projectId: Int, userId: Int): Future[Int] =
+    changeStatusIfOwner(
+      projectId,
+      userId,
+      validFrom = Set(ProjectStatus.active),
+      next = ProjectStatus.completed,
+      errorMsg = "Only active projects can be completed"
+    )
+
+  def deleteProject(projectId: Int, userId: Int): Future[Int] =
+    changeStatusIfOwner(
+      projectId,
+      userId,
+      validFrom = Set(ProjectStatus.completed),
+      next = ProjectStatus.deleted,
+      errorMsg = "Only completed projects can be deleted"
+    )
+
+  private def changeStatusIfOwner(projectId: Int,
+                                  userId: Int,
+                                  validFrom: Set[ProjectStatus],
+                                  next: ProjectStatus,
+                                  errorMsg: String): Future[Int] = {
     val action = for {
       maybeStatus <- projectRepository.findStatusIfOwner(projectId, userId)
       updatedRows <- maybeStatus match {
-        case Some(ProjectStatus.active) =>
-          projectRepository.updateStatus(projectId, ProjectStatus.completed)
+        case Some(s) if validFrom.contains(s) =>
+          projectRepository.updateStatus(projectId, next)
         case Some(_) =>
-          DBIO.failed(AppException("Only active projects can be completed", Status.BAD_REQUEST))
+          DBIO.failed(AppException(errorMsg, Status.BAD_REQUEST))
         case None =>
-          DBIO.failed(AppException("Project not found or you are not the owner", Status.NOT_FOUND))
+          DBIO.failed(
+            AppException(
+              "Project not found or you are not the owner",
+              Status.NOT_FOUND
+            )
+          )
       }
     } yield updatedRows
 
     db.run(action.transactionally)
   }
 
-  def deleteProject(projectId: Int, userId: Int): Future[Int] = {
-    val action = for {
-      maybeStatus <- projectRepository.findStatusIfOwner(projectId, userId)
-      updatedRows <- maybeStatus match {
-        case Some(ProjectStatus.completed) =>
-          projectRepository.updateStatus(projectId, ProjectStatus.deleted)
-        case Some(_) =>
-          DBIO.failed(AppException("Only completed projects can be deleted", Status.BAD_REQUEST))
-        case None =>
-          DBIO.failed(AppException("Project not found or you are not the owner", Status.NOT_FOUND))
-      }
-    } yield updatedRows
+  def reopenProject(projectId: Int, userId: Int): Future[Int] =
+    changeStatusIfOwner(
+      projectId,
+      userId,
+      validFrom = Set(ProjectStatus.completed, ProjectStatus.deleted),
+      next = ProjectStatus.active,
+      errorMsg = "Only completed or deleted projects can be reopened"
+    )
 
-    db.run(action.transactionally)
-  }
-
-  def reopenProject(projectId: Int, userId: Int): Future[Int] = {
-    val action = for {
-      maybeStatus <- projectRepository.findStatusIfOwner(projectId, userId)
-      updatedRows <- maybeStatus match {
-        case Some(ProjectStatus.completed) =>
-          projectRepository.updateStatus(projectId, ProjectStatus.active)
-        case Some(_) =>
-          DBIO.failed(AppException("Only completed projects can be reopened", Status.BAD_REQUEST))
-        case None =>
-          DBIO.failed(AppException("Project not found or you are not the owner", Status.NOT_FOUND))
-      }
-    } yield updatedRows
-
-    db.run(action.transactionally)
-  }
 }
