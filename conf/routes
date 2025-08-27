@@ -3,6 +3,34 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index()
 
+# Authentication routes
+POST    /api/auth/register      controllers.AuthController.register()
+POST    /api/auth/login         controllers.AuthController.login()
+POST    /api/auth/logout        controllers.AuthController.logout()
+GET     /api/auth/me            controllers.AuthController.me()
+POST    /api/auth/refresh       controllers.AuthController.refresh()
+GET     /api/auth/check         controllers.AuthController.checkAuth()
+GET    /api/auth/role         controllers.AuthController.roleRetrieve()
+
+# Workspace
+GET     /api/workspaces            controllers.WorkspaceController.getAllWorkspaces
+GET     /api/workspaces/:id        controllers.WorkspaceController.getWorkspaceById(id: Int)
+DELETE  /api/workspaces/:id        controllers.WorkspaceController.deleteWorkspace(id: Int)
+
+# URL Preview for adding item
+GET     /api/url-preview        controllers.UrlPreviewController.preview()
+OPTIONS /api/url-preview        controllers.UrlPreviewController.previewOptions()
+
+# Workspace routes
+
+POST   /api/workspaces    controllers.WorkspaceController.create
+PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)
+
+# Project routes
+POST   /api/workspaces/:workspaceId/projects    controllers.ProjectController.create(workspaceId: Int)
+GET    /api/workspaces/:workspaceId/projects    controllers.ProjectController.getAll(workspaceId: Int)
+PATCH   /api/workspaces/projects/:projectId/complete   controllers.ProjectController.completeProject(projectId: Int)
+PATCH   /api/workspaces/projects/:projectId/delete     controllers.ProjectController.deleteProject(projectId: Int)
+PATCH   /api/workspaces/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
+GET    /api/workspaces/projects/completed       controllers.ProjectController.getCompletedProjectsByUser
