@@ -36,4 +36,9 @@ class RoleRepository @Inject()(
   def findByRoleId(roleId: Int): Future[Option[Role]] = {
     db.run(roles.filter(_.id === roleId).result.headOption)
   }
+
+  def create(role: Role): Future[Role] = {
+    val insertQuery = roles returning roles.map(_.id) into ((role, id) => role.copy(id = Some(id)))
+    db.run(insertQuery += role)
+  }
 }

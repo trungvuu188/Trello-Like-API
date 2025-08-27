@@ -1,6 +1,6 @@
 package init
 
-import models.entities.User
+import models.entities.{Role, User}
 import repositories.{RoleRepository, UserRepository}
 import play.api.{Configuration, Logger, Logging}
 import com.github.t3hnar.bcrypt._
@@ -48,9 +48,11 @@ class DatabaseInitializer @Inject()(
 
   private def createAdminUser(name: String, email: String, password: String): Future[Unit] = {
     for {
-      adminRole <- roleRepository.findByRoleName("admin").map(_.getOrElse(
-        throw new RuntimeException("Admin role not found. Can not create default admin.")
-      ))
+      adminRole <- roleRepository.findByRoleName("admin").flatMap {
+        case Some(role) => Future.successful(role)
+        case None => roleRepository.create(Role(name = "admin"))
+      }
+
       hashedPassword = password.bcryptSafeBounded.getOrElse(
         throw new RuntimeException("Failed to hash admin password")
       )
