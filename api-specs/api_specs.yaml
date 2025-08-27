@@ -395,6 +395,16 @@ paths:
                   - type: object
               example:
                 message: "Authentication required"
+        '409':
+          description: Duplicated workspace name
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Workspace name already exists"
 
 
   /workspaces/{id}:
@@ -508,6 +518,17 @@ paths:
                   - type: object
               example:
                 message: "Workspace not found"
+
+        '409':
+          description: Duplicated workspace name
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Workspace name already exists"
 
 
     delete:

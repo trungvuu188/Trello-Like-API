@@ -147,7 +147,7 @@ class WorkspaceControllerSpec
             val workspaceId = await(
                 wsService.createWorkspace(
                     dto.request.workspace
-                        .CreateWorkspaceRequest("Test Workspace", Some("test desc")),
+                        .CreateWorkspaceRequest("New Workspace", Some("test desc")),
                     1
                 )
             )

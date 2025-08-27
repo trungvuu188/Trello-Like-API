@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "280fe373-0602-4979-be1f-c805047d0c34",
+		"_postman_id": "bfe9f937-5ea7-4126-8115-9fafc0468aaa",
 		"name": "Smart Taskhub API",
 		"description": "API documentation for Smart Taskhub, a task and project management application.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
@@ -853,6 +853,44 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"Authentication required\"\n}"
+						},
+						{
+							"name": "Duplicated workspace name",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"My Workspace\",\n  \"description\": \"This is a workspace for managing projects\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/workspaces"
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Workspace name already exists\"\n}"
 						}
 					]
 				},
@@ -878,7 +916,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1038,7 +1076,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1253,6 +1291,58 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"Workspace not found\"\n}"
+						},
+						{
+							"name": "Duplicated workspace name",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Updated Workspace Name\",\n  \"description\": \"Updated workspace description\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/workspaces/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"workspaces",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Workspace name already exists\"\n}"
 						}
 					]
 				},
@@ -1278,7 +1368,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1445,7 +1535,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1690,7 +1780,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1841,7 +1931,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2035,7 +2125,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2229,7 +2319,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "4889",
+									"value": "3659",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2480,7 +2570,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/url-preview?url=http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+							"raw": "{{baseUrl}}/url-preview?url=https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2490,7 +2580,7 @@
 							"query": [
 								{
 									"key": "url",
-									"value": "http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+									"value": "https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 									"description": "(Required) The URL to preview"
 								}
 							]
@@ -2509,7 +2599,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+									"raw": "{{baseUrl}}/url-preview?url=https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2519,7 +2609,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+											"value": "https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 											"description": "(Required) The URL to preview"
 										}
 									]
@@ -2572,7 +2662,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+									"raw": "{{baseUrl}}/url-preview?url=https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2582,7 +2672,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "http://WmrZLQeI.cpveCq6hW7k1iD9Kl79bp79lu9Q-gzEQJ6",
+											"value": "https://InVlwCUywvYAfZjHSdApXbflxh.qwwPUQN,wxk.XKuB2aMxaB.MX60,MJ9DWWjDbjTw3HI7-4td+jqYhD7-Td",
 											"description": "(Required) The URL to preview"
 										}
 									]

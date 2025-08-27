@@ -1,5 +1,6 @@
 package repositories
 
+import db.MyPostgresProfile.api.userWorkspaceRoleTypeMapper
 import models.Enums
 import models.entities.{UserWorkspace, Workspace}
 import models.tables.{UserWorkspaceTable, WorkspaceTable}
@@ -124,6 +125,14 @@ class WorkspaceRepository @Inject()(
     (for {
       uw <- userWorkspaces if uw.workspaceId === workspaceId && uw.userId === userId
       w  <- workspaces if w.id === workspaceId && !w.isDeleted
+    } yield ()).exists.result
+  }
+
+  /** Check if a workspace name is already used by a user (case insensitive) */
+  def isWorkspaceNameUsedByUser(name: String, userId: Int): DBIO[Boolean] = {
+    (for {
+      uw <- userWorkspaces if uw.userId === userId && uw.role === Enums.UserWorkspaceRole.admin
+      w  <- workspaces if w.id === uw.workspaceId && w.name.toLowerCase === name.toLowerCase && !w.isDeleted
     } yield ()).exists.result
   }
 }
