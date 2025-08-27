@@ -56,7 +56,7 @@ object CustomValidators {
   def validateRequiredField[T](
     fieldName: String,
     requiredMessage: String = "",
-    validations: Seq[(T => Boolean, String)],
+    validations: Seq[(T => Boolean, String)] = Seq.empty,
     transform: T => T = (t: T) => t
   )(implicit reads: Reads[T]): Reads[T] = {
     val finalRequiredMessage =
@@ -122,7 +122,7 @@ object CustomValidators {
     */
   def validateOptionalField[T](
     fieldName: String,
-    validations: Seq[(T => Boolean, String)],
+    validations: Seq[(T => Boolean, String)] = Seq.empty,
     transform: T => T = (t: T) => t
   )(implicit reads: Reads[T]): Reads[Option[T]] = {
     (JsPath \ fieldName).readNullable[T].map(_.map(transform)).flatMap {
@@ -166,6 +166,50 @@ object CustomValidators {
           }
         }
     }
+  }
+  /**
+    * Validates a required field against an enumeration.
+    *
+    * This method checks if the field is present, not empty, and matches one of
+    * the enumeration values. If the value is invalid, it returns a custom error
+    * message indicating the allowed values.
+    *
+    * @param field
+    *   The JSON field name to validate.
+    * @param enum
+    *   The enumeration to validate against.
+    * @param requiredMsg
+    *   Custom error message when the field is missing or empty.
+    * @param invalidMsgTmpl
+    *   Template for the error message when the value is not a valid enum value.
+    *
+    * @tparam E
+    *   The type of the enumeration.
+    *
+    * @return
+    *   A `Reads[E#Value]` that validates the field against the enum.
+    */
+  def validateRequiredEnum[E <: Enumeration](
+    field: String,
+    enum: E,
+    requiredMsg: String,
+    invalidMsgTmpl: String
+  ): Reads[E#Value] = {
+    val path = JsPath \ field
+
+    path
+      .read[String]
+      .filter(JsonValidationError(requiredMsg))(_.trim.nonEmpty)
+      .flatMap { raw =>
+        val s = raw.trim
+        enum.values.find(_.toString.equalsIgnoreCase(s)) match {
+          case Some(v) => Reads.pure(v)
+          case None =>
+            val allowed = enum.values.mkString(", ")
+            val msg = invalidMsgTmpl.format(allowed)
+            Reads(_ => JsError(path, JsonValidationError(msg)))
+        }
+      }
   }
 
   /**

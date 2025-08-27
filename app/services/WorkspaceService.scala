@@ -54,7 +54,17 @@ class WorkspaceService @Inject() (
             updatedAt = Some(now)
         )
 
-        val action = workspaceRepo.createWithOwnerAction(newWorkspace, createdBy)
+        val action = for {
+            isWorkspaceNameExists <- workspaceRepo.isWorkspaceNameUsedByUser(workspace.name, createdBy)
+            workspaceId <- if (isWorkspaceNameExists) {
+              DBIO.failed(AppException(
+                message = "Workspace name already exists",
+                statusCode = Status.CONFLICT
+              ))
+            } else {
+              workspaceRepo.createWithOwnerAction(newWorkspace, createdBy)
+            }
+        } yield workspaceId
         db.run(action.transactionally)
     }
 
@@ -72,22 +82,30 @@ class WorkspaceService @Inject() (
             // Check if workspace exists
             existingWorkspaceOpt <- workspaceRepo.getByIdQuery(id).result.headOption
 
-            // Perform update if exists, otherwise fail
-            result <- existingWorkspaceOpt match {
-                case Some(existingWorkspace) =>
-                    val updatedWorkspace = existingWorkspace.copy(
-                        name = workspace.name,
-                        description = workspace.description,
-                        updatedBy = Some(updatedBy),
-                        updatedAt = Some(now)
-                    )
-                    workspaceRepo.updateAction(updatedWorkspace)
-
+            ws <- existingWorkspaceOpt match {
+                case Some(existingWorkspace) => DBIO.successful(existingWorkspace)
                 case None =>
                     DBIO.failed(AppException(
                         message = "Workspace not found",
                         statusCode = Status.NOT_FOUND
                     ))
+            }
+
+            // Check if the new name is already used by the user (if name is changing)
+            isWorkspaceNameExists <- workspaceRepo.isWorkspaceNameUsedByUser(workspace.name, updatedBy)
+            result <- if (isWorkspaceNameExists) {
+                DBIO.failed(AppException(
+                  message = "Workspace name already exists",
+                  statusCode = Status.CONFLICT
+                ))
+            } else {
+                val updatedWorkspace = ws.copy(
+                                        name = workspace.name,
+                                        description = workspace.description,
+                                        updatedBy = Some(updatedBy),
+                                        updatedAt = Some(now)
+                                    )
+                workspaceRepo.updateAction(updatedWorkspace)
             }
         } yield result
 

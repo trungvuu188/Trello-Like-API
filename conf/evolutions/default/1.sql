@@ -4,7 +4,7 @@
 CREATE TYPE workspace_status AS ENUM ('active', 'archived');
 CREATE TYPE user_workspace_role AS ENUM ('admin', 'member');
 CREATE TYPE user_workspace_status AS ENUM ('pending', 'active', 'inactive');
-CREATE TYPE project_status AS ENUM ('active', 'completed', 'archived');
+CREATE TYPE project_status AS ENUM ('active', 'completed', 'deleted');
 CREATE TYPE task_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 CREATE TYPE notification_type AS ENUM ('task_assigned', 'task_completed', 'deadline_approaching', 'comment_added', 'task_moved');
 
