@@ -21,6 +21,7 @@ class CustomErrorHandler@Inject()(
   private def withCORS(result: Result): Result = {
     result.withHeaders(
       "Access-Control-Allow-Origin" -> allowedOrigins,
+
       "Access-Control-Allow-Headers" -> allowedHeaders,
       "Access-Control-Allow-Credentials" -> allowCredentials.toString,
       "Access-Control-Allow-Methods" -> allowedMethods
