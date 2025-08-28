@@ -26,4 +26,7 @@ object ErrorMessages {
 
   def invalidEnum(field: String, allowed: Iterable[String])(implicit messages: Messages): String =
     messages("validate.invalidEnum", field, allowed.mkString(", "))
+
+  def minValue(field: String, min: Int)(implicit messages: Messages): String =
+    messages("validate.minValue", field, min)
 }

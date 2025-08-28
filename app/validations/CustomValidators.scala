@@ -224,6 +224,9 @@ object CustomValidators {
   def minLength(min: Int, msg: String): (String => Boolean, String) =
     ((s: String) => s.length >= min, msg)
 
+  def minValue(min: Int, msg: String): (Int => Boolean, String) =
+    ((v: Int) => v >= min, msg)
+
   /**
     * Validation helper: ensures a string matches a regular expression.
     */

@@ -81,4 +81,11 @@ class ProjectRepository @Inject()(
     } yield (p.id, p.name, w.name)).result
       .map(_.map((CompletedProjectSummariesResponse.apply _).tupled))
   }
+
+  def exitsAndActiveById(projectId: Int): DBIO[Boolean] = {
+    projects
+      .filter(p => p.id === projectId && p.status === ProjectStatus.active)
+      .exists
+      .result
+  }
 }
