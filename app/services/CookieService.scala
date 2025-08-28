@@ -27,7 +27,7 @@ class CookieService @Inject()(config: Configuration) {
             value = token,
             maxAge = Some(maxAge),
             path = "/",
-            domain = None, // Will use current domain
+            domain = Some("trellofrontend-xi.vercel.app"), // Will use current domain
             secure = secure,
             httpOnly = httpOnly,
             sameSite = sameSite
