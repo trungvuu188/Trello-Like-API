@@ -81,4 +81,12 @@ class ProjectRepository @Inject()(
     } yield (p.id, p.name, w.name)).result
       .map(_.map((CompletedProjectSummariesResponse.apply _).tupled))
   }
+
+  def isUserInActiveProject(userId: Int, projectId: Int): DBIO[Boolean] = {
+    (for {
+      up <- userProjects if up.userId === userId && up.projectId === projectId
+      p <- projects
+      if p.id === up.projectId && p.status === ProjectStatus.active
+    } yield up).exists.result
+  }
 }

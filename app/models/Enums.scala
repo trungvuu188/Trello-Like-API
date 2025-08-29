@@ -68,4 +68,9 @@ object Enums {
     val Public: Value = Value("public")
   }
 
+  object ColumnStatus extends Enumeration {
+    type ColumnStatus = Value
+    val active, archived, deleted = Value
+  }
+
 }
