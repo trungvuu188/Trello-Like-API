@@ -76,4 +76,35 @@ class ColumnController @Inject()(
             }
       }
     }
+
+  /** PATCH /columns/:columnId/archive */
+  def archive(projectId: Int, columnId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+
+      columnService.archiveColumn(columnId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Column archived successfully")))
+      }
+    }
+
+  /** PATCH /columns/:columnId/restore */
+  def restore(projectId: Int, columnId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+
+      columnService.restoreColumn(columnId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Column restored successfully")))
+      }
+    }
+
+  /** DELETE /columns/:columnId */
+  def delete(projectId: Int, columnId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+
+      columnService.deleteColumn(columnId, userId).map { _ =>
+        Ok(Json.toJson(ApiResponse[Unit]("Column deleted successfully")))
+      }
+    }
+
 }

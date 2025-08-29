@@ -39,3 +39,6 @@ GET    /api/projects/completed       controllers.ProjectController.getCompletedP
 POST   /api/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)
 GET    /api/projects/:projectId/columns    controllers.ColumnController.getAll(projectId: Int)
 PATCH  /api/projects/:projectId/columns/:columnId   controllers.ColumnController.update(projectId: Int, columnId: Int)
+PATCH   /api/columns/:columnId/archive    controllers.ColumnController.archive(columnId: Int)
+PATCH   /api/columns/:columnId/restore    controllers.ColumnController.restore(columnId: Int)
+DELETE  /api/columns/:columnId            controllers.ColumnController.delete(columnId: Int)

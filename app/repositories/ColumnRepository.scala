@@ -5,7 +5,9 @@ import dto.request.column.UpdateColumnRequest
 import dto.response.column.ColumnWithTasksResponse
 import dto.response.task.TaskSummaryResponse
 import models.Enums.ColumnStatus
+import models.Enums.ColumnStatus.ColumnStatus
 import models.entities.Column
+import models.tables.TableRegistry.{columns, projects, tasks}
 import models.tables.{ColumnTable, TaskTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
@@ -19,9 +21,6 @@ class ColumnRepository @Inject()(
 )(implicit ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
   import profile.api._
-
-  private val columns = TableQuery[ColumnTable]
-  private val tasks = TableQuery[TaskTable]
 
   def create(column: Column): DBIO[Int] = {
     columns returning columns.map(_.id) += column
@@ -77,4 +76,16 @@ class ColumnRepository @Inject()(
       .update(column.name, Instant.now())
   }
 
+  def updateStatus(columnId: Int, status: ColumnStatus): DBIO[Int] = {
+    columns.filter(_.id === columnId).map(_.status).update(status)
+  }
+
+  def findStatusIfUserInProject(columnId: Int, userId: Int): DBIO[Option[ColumnStatus]] = {
+    val query = for {
+      (c, p) <- columns join projects on (_.projectId === _.id)
+      if c.id === columnId.bind && p.createdBy === userId.bind
+    } yield c.status
+
+    query.result.headOption
+  }
 }
