@@ -30,11 +30,12 @@ PUT    /api/workspaces/:id controllers.WorkspaceController.update(id: Int)
 # Project routes
 POST   /api/workspaces/:workspaceId/projects    controllers.ProjectController.create(workspaceId: Int)
 GET    /api/workspaces/:workspaceId/projects    controllers.ProjectController.getAll(workspaceId: Int)
-PATCH   /api/workspaces/projects/:projectId/complete   controllers.ProjectController.completeProject(projectId: Int)
-PATCH   /api/workspaces/projects/:projectId/delete     controllers.ProjectController.deleteProject(projectId: Int)
-PATCH   /api/workspaces/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
-GET    /api/workspaces/projects/completed       controllers.ProjectController.getCompletedProjectsByUser
+PATCH   /api/projects/:projectId/complete   controllers.ProjectController.completeProject(projectId: Int)
+PATCH   /api/projects/:projectId/delete     controllers.ProjectController.deleteProject(projectId: Int)
+PATCH   /api/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
+GET    /api/projects/completed       controllers.ProjectController.getCompletedProjectsByUser
 
 # Column routes
-POST   /api/workspaces/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)
-GET    /api/workspaces/projects/:projectId/columns    controllers.ColumnController.getAll(projectId: Int)
+POST   /api/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)
+GET    /api/projects/:projectId/columns    controllers.ColumnController.getAll(projectId: Int)
+PATCH  /api/projects/:projectId/columns/:columnId   controllers.ColumnController.update(projectId: Int, columnId: Int)

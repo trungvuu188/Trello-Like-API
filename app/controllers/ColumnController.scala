@@ -1,6 +1,6 @@
 package controllers
 
-import dto.request.column.CreateColumnRequest
+import dto.request.column.{CreateColumnRequest, UpdateColumnRequest}
 import dto.response.ApiResponse
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
@@ -26,7 +26,7 @@ class ColumnController @Inject()(
     extends MessagesAbstractController(cc)
     with ValidationHandler {
 
-  /** POST /workspaces/projects/:projectId/columns */
+  /** POST /projects/:projectId/columns */
   def create(projectId: Int): Action[JsValue] =
     authenticatedActionWithUser.async(parse.json) { request =>
       implicit val messages: Messages = request.messages
@@ -34,12 +34,12 @@ class ColumnController @Inject()(
       handleJsonValidation[CreateColumnRequest](request.body) {
         createColumnDto =>
           columnService
-            .createColumn(createColumnDto, projectId)
+            .createColumn(createColumnDto, projectId, createdBy)
             .map { columnId =>
               Created(
                 Json.toJson(
                   ApiResponse[Unit](
-                    s"Project created successfully with ID: $columnId"
+                    s"Column created successfully with ID: $columnId"
                   )
                 )
               )
@@ -47,17 +47,33 @@ class ColumnController @Inject()(
       }
     }
 
-  /** GET /workspaces/projects/:projectId/columns */
+  /** GET /projects/:projectId/columns */
   def getAll(projectId: Int): Action[AnyContent] =
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
-      columnService.getActiveColumnsWithTasks(projectId).map { columns =>
-        val apiResponse =
-          ApiResponse(
-            message = "Columns retrieved",
-            data = Some(Json.toJson(columns))
-          )
-        Ok(Json.toJson(apiResponse))
+      columnService.getActiveColumnsWithTasks(projectId, userId).map {
+        columns =>
+          val apiResponse =
+            ApiResponse(
+              message = "Columns retrieved",
+              data = Some(Json.toJson(columns))
+            )
+          Ok(Json.toJson(apiResponse))
+      }
+    }
+
+  /** PATCH /projects/:projectId/columns/:columnId */
+  def update(projectId: Int, columnId: Int): Action[JsValue] =
+    authenticatedActionWithUser.async(parse.json) { request =>
+      implicit val messages: Messages = request.messages
+      val updatedBy = request.userToken.userId
+      handleJsonValidation[UpdateColumnRequest](request.body) {
+        updateColumnDto =>
+          columnService
+            .updateColumn(updateColumnDto, columnId, projectId, updatedBy)
+            .map { _ =>
+              Ok(Json.toJson(ApiResponse[Unit]("Column updated successfully")))
+            }
       }
     }
 }

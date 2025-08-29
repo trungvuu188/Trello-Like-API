@@ -1,6 +1,6 @@
 package services
 
-import dto.request.column.CreateColumnRequest
+import dto.request.column.{CreateColumnRequest, UpdateColumnRequest}
 import dto.response.column.ColumnWithTasksResponse
 import exception.AppException
 import models.entities.Column
@@ -20,9 +20,20 @@ class ColumnService @Inject()(
     extends HasDatabaseConfigProvider[JdbcProfile] {
   import profile.api._
 
-  def createColumn(req: CreateColumnRequest, projectId: Int): Future[Int] = {
+  def createColumn(req: CreateColumnRequest, projectId: Int, userId: Int): Future[Int] = {
     val checkAndInsert = for {
-      exists <- projectRepository.exitsAndActiveById(projectId)
+      exists <- projectRepository.isUserInActiveProject(userId, projectId)
+      exitsByPosition <- columnRepository.exitsByPosition(projectId, req.position)
+      _ <- if (exitsByPosition) {
+        DBIO.failed(
+          AppException(
+            message = s"Column position ${req.position} already exists in project $projectId",
+            statusCode = Status.CONFLICT
+          )
+        )
+      } else {
+        DBIO.successful(())
+      }
       result <- if (exists) {
         val newColumn = Column(
           projectId = projectId,
@@ -33,19 +44,19 @@ class ColumnService @Inject()(
       } else {
         DBIO.failed(
           AppException(
-            message = s"Project $projectId is not exists or not active",
+            message = s"Project $projectId is not found or not active",
             statusCode = Status.NOT_FOUND
           )
         )
       }
     } yield result
 
-    db.run(checkAndInsert.transactionally)
+    db.run(checkAndInsert)
   }
 
-  def getActiveColumnsWithTasks(projectId: Int): Future[Seq[ColumnWithTasksResponse]] = {
+  def getActiveColumnsWithTasks(projectId: Int, userId: Int): Future[Seq[ColumnWithTasksResponse]] = {
     val checkAndGet = for {
-      exists <- projectRepository.exitsAndActiveById(projectId)
+      exists <- projectRepository.isUserInActiveProject(userId, projectId)
       result <- if (exists) {
         columnRepository.findActiveColumnsWithTasks(projectId)
       } else {
@@ -59,5 +70,23 @@ class ColumnService @Inject()(
     } yield result
 
     db.run(checkAndGet)
+  }
+
+  def updateColumn(req: UpdateColumnRequest, columnId: Int, projectId: Int, userId: Int): Future[Int] = {
+    val checkAndUpdate = for {
+      isUserInActiveProject <- projectRepository.isUserInActiveProject(projectId, userId)
+      result <- if (isUserInActiveProject) {
+        columnRepository.update(req, columnId)
+      } else {
+        DBIO.failed(
+          AppException(
+            message = s"Column ${columnId} is not found or not active",
+            statusCode = Status.NOT_FOUND
+          )
+        )
+      }
+    } yield result
+
+    db.run(checkAndUpdate)
   }
 }
