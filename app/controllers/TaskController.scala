@@ -5,7 +5,7 @@ import dto.response.ApiResponse
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, MessagesAbstractController, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
 import services.TaskService
 import validations.ValidationHandler
 import utils.WritesExtras.unitWrites
@@ -59,6 +59,20 @@ class TaskController @Inject()(
               )
             }
       }
+    }
+
+  def getById(taskId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      taskService
+        .getTaskById(taskId, userId)
+        .map { taskDetail =>
+          Ok(
+            Json.toJson(
+              ApiResponse.success("Task retrieved successfully", taskDetail)
+            )
+          )
+        }
     }
 
 }

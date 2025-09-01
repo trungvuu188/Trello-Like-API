@@ -46,3 +46,4 @@ DELETE  /api/columns/:columnId            controllers.ColumnController.delete(co
 # Task routes
 POST   /api/columns/:columnId/tasks    controllers.TaskController.create(columnId: Int)
 PATCH  /api/tasks/:taskId              controllers.TaskController.update(taskId: Int)
+GET    /api/tasks/:taskId              controllers.TaskController.getById(taskId: Int)

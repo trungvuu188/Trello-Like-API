@@ -1,7 +1,9 @@
 package services
 
 import dto.request.task.UpdateTaskRequest
+import dto.response.task.TaskDetailResponse
 import exception.AppException
+import mappers.TaskMapper
 import models.Enums.ColumnStatus
 import models.entities.{Column, Task}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -91,7 +93,24 @@ class TaskService @Inject()(taskRepository: TaskRepository,
     } yield rowsAffected
 
     db.run(action.transactionally)
+  }
 
+  def getTaskById(taskId: Int, userId: Int): Future[Option[TaskDetailResponse]] = {
+    val action = for {
+      taskOpt <- taskRepository.findById(taskId)
+      task <- taskOpt match {
+        case Some(t) => DBIO.successful(Some(t))
+        case _ => DBIO.failed(AppException(
+          message = s"Task with ID $taskId does not exist",
+          statusCode = Status.NOT_FOUND)
+        )
+      }
+      _ <- task match {
+        case Some(t) => verifyColumnAndUserProjectAccess(t.columnId, userId).map(_ => ())
+      }
+    } yield task
+
+    db.run(action.transactionally).map(_.map(TaskMapper.toDetailResponse))
   }
 
   private def verifyColumnAndUserProjectAccess(columnId: Int, createdBy: Int): DBIO[Column] = {
