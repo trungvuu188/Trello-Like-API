@@ -78,7 +78,7 @@ class ColumnController @Inject()(
     }
 
   /** PATCH /columns/:columnId/archive */
-  def archive(projectId: Int, columnId: Int): Action[AnyContent] =
+  def archive(columnId: Int): Action[AnyContent] =
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
 
@@ -88,7 +88,7 @@ class ColumnController @Inject()(
     }
 
   /** PATCH /columns/:columnId/restore */
-  def restore(projectId: Int, columnId: Int): Action[AnyContent] =
+  def restore(columnId: Int): Action[AnyContent] =
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
 
@@ -98,7 +98,7 @@ class ColumnController @Inject()(
     }
 
   /** DELETE /columns/:columnId */
-  def delete(projectId: Int, columnId: Int): Action[AnyContent] =
+  def delete(columnId: Int): Action[AnyContent] =
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
 

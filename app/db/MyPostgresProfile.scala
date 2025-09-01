@@ -93,6 +93,9 @@ trait MyPostgresProfile extends PostgresProfile with PgEnumSupport {
 
     implicit val columnStatusTypeMapper: JdbcType[ColumnStatus.Value] =
       createEnumJdbcType("column_status", ColumnStatus)
+
+    implicit val taskStatusTypeMapper: JdbcType[TaskStatus.Value] =
+      createEnumJdbcType("task_status", TaskStatus)
   }
 }
 

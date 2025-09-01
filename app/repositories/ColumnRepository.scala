@@ -1,14 +1,13 @@
 package repositories
 
-import db.MyPostgresProfile.api.columnStatusTypeMapper
+import db.MyPostgresProfile.api.{columnStatusTypeMapper, projectStatusTypeMapper}
 import dto.request.column.UpdateColumnRequest
 import dto.response.column.ColumnWithTasksResponse
 import dto.response.task.TaskSummaryResponse
-import models.Enums.ColumnStatus
 import models.Enums.ColumnStatus.ColumnStatus
+import models.Enums.{ColumnStatus, ProjectStatus}
 import models.entities.Column
 import models.tables.TableRegistry.{columns, projects, tasks}
-import models.tables.{ColumnTable, TaskTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 
@@ -55,12 +54,12 @@ class ColumnRepository @Inject()(
                 id = col.id.get,
                 name = col.name,
                 position = col.position,
-                tasks = grouped.getOrElse(col.id, Seq.empty).map {
+                tasks = grouped.getOrElse(col.id.get, Seq.empty).map {
                   case (_, id, name, pos) =>
                     TaskSummaryResponse(
                       id,
-                      name.getOrElse(""),
-                      pos.getOrElse(0)
+                      name,
+                      pos.getOrElse(1)
                     )
                 }
               )
@@ -88,4 +87,12 @@ class ColumnRepository @Inject()(
 
     query.result.headOption
   }
+
+  def findById(columnId: Int): DBIO[Option[Column]] = {
+    columns
+      .filter(c => c.id === columnId)
+      .result
+      .headOption
+  }
+
 }

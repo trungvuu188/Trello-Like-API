@@ -42,3 +42,7 @@ PATCH  /api/projects/:projectId/columns/:columnId   controllers.ColumnController
 PATCH   /api/columns/:columnId/archive    controllers.ColumnController.archive(columnId: Int)
 PATCH   /api/columns/:columnId/restore    controllers.ColumnController.restore(columnId: Int)
 DELETE  /api/columns/:columnId            controllers.ColumnController.delete(columnId: Int)
+
+# Task routes
+POST   /api/columns/:columnId/tasks    controllers.TaskController.create(columnId: Int)
+PATCH  /api/tasks/:taskId              controllers.TaskController.update(taskId: Int)

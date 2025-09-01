@@ -1,26 +1,34 @@
 package models.entities
 
-import models.Enums.TaskPriority
 import models.Enums.TaskPriority.TaskPriority
+import models.Enums.TaskStatus
+import models.Enums.TaskStatus.TaskStatus
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 case class Task(
                  id: Option[Int] = None,
-                 projectId: Option[Int] = None,
-                 columnId: Option[Int] = None,
-                 name: Option[String] = None,
+                 columnId: Int,
+                 name: String,
                  description: Option[String] = None,
-                 startDate: Option[LocalDateTime] = None,
-                 endDate: Option[LocalDateTime] = None,
-                 priority: TaskPriority = TaskPriority.MEDIUM,
+                 startDate: Option[Instant] = None,
+                 endDate: Option[Instant] = None,
+                 priority: Option[TaskPriority] = None,
                  position: Option[Int] = None,
-                 assignedTo: Option[Int] = None,
                  createdBy: Option[Int] = None,
                  updatedBy: Option[Int] = None,
-                 createdAt: Option[LocalDateTime] = None,
-                 updatedAt: Option[LocalDateTime] = None
+                 createdAt: Instant = Instant.now(),
+                 updatedAt: Instant = Instant.now(),
+                 status: TaskStatus = TaskStatus.active
                )
+
+case class UserTask(
+                     id: Option[Int] = None,
+                     taskId: Int,
+                     assignedTo: Int,
+                     assignedBy: Option[Int] = None,
+                     assignedAt: LocalDateTime = LocalDateTime.now()
+                   )
 
 case class Checklist(
                       id: Option[Int] = None,
