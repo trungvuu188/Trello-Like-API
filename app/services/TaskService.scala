@@ -85,7 +85,8 @@ class TaskService @Inject()(taskRepository: TaskRepository,
         endDate = req.endDate,
         priority = req.priority,
         updatedBy = Some(updatedBy),
-        updatedAt = Instant.now()
+        updatedAt = Instant.now(),
+        isCompleted = req.isCompleted.getOrElse(false)
       )
 
       rowsAffected <- taskRepository.update(updatedTask)

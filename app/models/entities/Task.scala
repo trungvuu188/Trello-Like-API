@@ -19,7 +19,8 @@ case class Task(
                  updatedBy: Option[Int] = None,
                  createdAt: Instant = Instant.now(),
                  updatedAt: Instant = Instant.now(),
-                 status: TaskStatus = TaskStatus.active
+                 status: TaskStatus = TaskStatus.active,
+                 isCompleted: Boolean = false
                )
 
 case class UserTask(

@@ -16,6 +16,7 @@ object TaskMapper {
       status = entity.status.toString,
       position = entity.position.getOrElse(0),
       columnId = entity.columnId,
+      isCompleted = entity.isCompleted,
       createdAt = entity.createdAt,
       updatedAt = entity.updatedAt
     )

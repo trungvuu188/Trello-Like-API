@@ -22,10 +22,11 @@ class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def status = column[TaskStatus]("status")
+  def isCompleted = column[Boolean]("is_completed", O.Default(false))
 
   def * =
     (id.?, columnId, name, description, startDate, endDate, priority, position,
-      createdBy, updatedBy, createdAt, updatedAt, status) <>
+      createdBy, updatedBy, createdAt, updatedAt, status, isCompleted) <>
     ((Task.apply _).tupled, Task.unapply)
 
   def columnPositionIndex = index("tasks_column_id_position_index", (columnId, position))

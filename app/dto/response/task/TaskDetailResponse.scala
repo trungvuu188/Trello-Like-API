@@ -13,6 +13,7 @@ case class TaskDetailResponse(id: Int,
                               status: String,
                               position: Int,
                               columnId: Int,
+                              isCompleted: Boolean,
                               createdAt: Instant,
                               updatedAt: Instant
                              )

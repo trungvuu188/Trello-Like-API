@@ -89,7 +89,7 @@ object Enums {
 
   object TaskStatus extends Enumeration {
     type TaskStatus = Value
-    val active, archived, deleted, completed = Value
+    val active, archived, deleted = Value
   }
 
 }

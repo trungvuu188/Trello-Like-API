@@ -14,7 +14,8 @@ case class UpdateTaskRequest(
                               description: Option[String],
                               startDate: Option[Instant],
                               endDate: Option[Instant],
-                              priority: Option[Enums.TaskPriority.TaskPriority]
+                              priority: Option[Enums.TaskPriority.TaskPriority],
+                              isCompleted: Option[Boolean]
                             )
 
 object UpdateTaskRequest {
@@ -47,6 +48,11 @@ object UpdateTaskRequest {
       ) and
       validateOptionalField[Enums.TaskPriority.TaskPriority](
         "priority",
+        Seq(),
+        identity
+      ) and
+      validateOptionalField[Boolean](
+        "isCompleted",
         Seq(),
         identity
       ))(UpdateTaskRequest.apply _)

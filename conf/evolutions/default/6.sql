@@ -1,11 +1,12 @@
 # --- !Ups
 
-CREATE TYPE task_status AS ENUM ('active', 'archived', 'deleted', 'completed');
+CREATE TYPE task_status AS ENUM ('active', 'archived', 'deleted');
 
 ALTER TABLE tasks
 DROP COLUMN IF EXISTS project_id,
 DROP COLUMN IF EXISTS assigned_to,
 ADD COLUMN "status" task_status DEFAULT 'active',
+ADD COLUMN "is_completed" BOOLEAN DEFAULT FALSE,
 ADD CONSTRAINT fk_tasks_column_id FOREIGN KEY (column_id) REFERENCES "columns"(id)
 ;
 
@@ -42,6 +43,7 @@ ALTER TABLE tasks
 ADD COLUMN IF NOT EXISTS project_id INT,
 ADD COLUMN IF NOT EXISTS assigned_to INT,
 DROP COLUMN IF EXISTS status,
+DROP COLUMN IF EXISTS is_completed,
 DROP CONSTRAINT IF EXISTS fk_tasks_column_id
 ;
 
