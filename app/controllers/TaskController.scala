@@ -65,11 +65,59 @@ class TaskController @Inject()(
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
       taskService
-        .getTaskById(taskId, userId)
+        .getTaskDetailById(taskId, userId)
         .map { taskDetail =>
           Ok(
             Json.toJson(
               ApiResponse.success("Task retrieved successfully", taskDetail)
+            )
+          )
+        }
+    }
+
+  def archive(taskId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val archivedBy = request.userToken.userId
+      taskService
+        .archiveTask(taskId, archivedBy)
+        .map { _ =>
+          Ok(
+            Json.toJson(
+              ApiResponse[Unit](
+                s"Task archived successfully"
+              )
+            )
+          )
+        }
+    }
+
+  def restore(taskId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val restoredBy = request.userToken.userId
+      taskService
+        .restoreTask(taskId, restoredBy)
+        .map { _ =>
+          Ok(
+            Json.toJson(
+              ApiResponse[Unit](
+                s"Task restored successfully"
+              )
+            )
+          )
+        }
+    }
+
+  def delete(taskId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val deletedBy = request.userToken.userId
+      taskService
+        .deleteTask(taskId, deletedBy)
+        .map { _ =>
+          Ok(
+            Json.toJson(
+              ApiResponse[Unit](
+                s"Task deleted successfully"
+              )
             )
           )
         }

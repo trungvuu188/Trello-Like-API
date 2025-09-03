@@ -47,3 +47,6 @@ DELETE  /api/columns/:columnId            controllers.ColumnController.delete(co
 POST   /api/columns/:columnId/tasks    controllers.TaskController.create(columnId: Int)
 PATCH  /api/tasks/:taskId              controllers.TaskController.update(taskId: Int)
 GET    /api/tasks/:taskId              controllers.TaskController.getById(taskId: Int)
+PATCH  /api/tasks/:taskId/archive      controllers.TaskController.archive(taskId: Int)
+PATCH  /api/tasks/:taskId/restore      controllers.TaskController.restore(taskId: Int)
+DELETE  /api/tasks/:taskId/delete      controllers.TaskController.delete(taskId: Int)

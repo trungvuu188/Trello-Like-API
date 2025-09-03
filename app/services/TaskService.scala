@@ -4,7 +4,8 @@ import dto.request.task.UpdateTaskRequest
 import dto.response.task.TaskDetailResponse
 import exception.AppException
 import mappers.TaskMapper
-import models.Enums.ColumnStatus
+import models.Enums.{ColumnStatus, TaskStatus}
+import models.Enums.TaskStatus.TaskStatus
 import models.entities.{Column, Task}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.http.Status
@@ -57,7 +58,7 @@ class TaskService @Inject()(taskRepository: TaskRepository,
 
   def updateTask(taskId: Int, req: UpdateTaskRequest, updatedBy: Int): Future[Int] = {
     val action = for {
-      taskOpt <- taskRepository.findById(taskId)
+      taskOpt <- getTaskById(taskId, updatedBy)
       task <- taskOpt match {
         case Some(t) if t.status == models.Enums.TaskStatus.active => DBIO.successful(t)
         case _ => DBIO.failed(AppException(
@@ -65,8 +66,6 @@ class TaskService @Inject()(taskRepository: TaskRepository,
           statusCode = Status.NOT_FOUND)
         )
       }
-
-      _ <- verifyColumnAndUserProjectAccess(task.columnId, updatedBy)
 
       existByName <- taskRepository.findByNameAndActiveTrueInColumn(req.name, task.columnId)
       _ <- existByName match {
@@ -96,8 +95,69 @@ class TaskService @Inject()(taskRepository: TaskRepository,
     db.run(action.transactionally)
   }
 
-  def getTaskById(taskId: Int, userId: Int): Future[Option[TaskDetailResponse]] = {
+  def getTaskDetailById(taskId: Int, userId: Int): Future[Option[TaskDetailResponse]] = {
     val action = for {
+      task <- getTaskById(taskId, userId)
+    } yield task
+
+    db.run(action.transactionally).map(_.map(TaskMapper.toDetailResponse))
+  }
+
+  def archiveTask(taskId: Int, userId: Int): Future[Int] = {
+    changeStatus(
+      taskId = taskId,
+      userId = userId,
+      validFrom = Set(TaskStatus.active),
+      next = TaskStatus.archived,
+      errorMsg = "Only active tasks can be archived"
+    )
+  }
+
+  def restoreTask(taskId: Int, userId: Int): Future[Int] = {
+    changeStatus(
+      taskId = taskId,
+      userId = userId,
+      validFrom = Set(TaskStatus.archived),
+      next = TaskStatus.active,
+      errorMsg = "Only archived tasks can be restored"
+    )
+  }
+
+  def deleteTask(taskId: Int, userId: Int): Future[Int] = {
+    changeStatus(
+      taskId = taskId,
+      userId = userId,
+      validFrom = Set(TaskStatus.archived),
+      next = TaskStatus.deleted,
+      errorMsg = "Only archived tasks can be deleted"
+    )
+  }
+
+  private def changeStatus(taskId: Int,
+                           userId: Int,
+                           validFrom: Set[TaskStatus],
+                           next: TaskStatus,
+                           errorMsg: String): Future[Int] = {
+    val action = for {
+      task <- getTaskById(taskId, userId)
+      maybeStatus = task.map(_.status)
+      updatedRows <- maybeStatus match {
+        case Some(s) if validFrom.contains(s) =>
+          taskRepository.update(task.get.copy(
+            status = next,
+            updatedBy = Some(userId),
+            updatedAt = Instant.now()
+          ))
+        case Some(_) =>
+          DBIO.failed(AppException(errorMsg, Status.BAD_REQUEST))
+      }
+    } yield updatedRows
+
+    db.run(action)
+  }
+
+  private def getTaskById(taskId: Int, userId: Int): DBIO[Option[Task]] = {
+    for {
       taskOpt <- taskRepository.findById(taskId)
       task <- taskOpt match {
         case Some(t) => DBIO.successful(Some(t))
@@ -110,11 +170,9 @@ class TaskService @Inject()(taskRepository: TaskRepository,
         case Some(t) => verifyColumnAndUserProjectAccess(t.columnId, userId).map(_ => ())
       }
     } yield task
-
-    db.run(action.transactionally).map(_.map(TaskMapper.toDetailResponse))
   }
 
-  private def verifyColumnAndUserProjectAccess(columnId: Int, createdBy: Int): DBIO[Column] = {
+  private def verifyColumnAndUserProjectAccess(columnId: Int, userId: Int): DBIO[Column] = {
     for {
       columnOpt <- columnRepository.findById(columnId)
       column <- columnOpt match {
@@ -126,7 +184,7 @@ class TaskService @Inject()(taskRepository: TaskRepository,
       }
 
       // Check if user is part of the active project
-      existsUserInActiveProject <- projectRepository.isUserInActiveProject(createdBy, column.projectId)
+      existsUserInActiveProject <- projectRepository.isUserInActiveProject(userId, column.projectId)
       _ <- if (existsUserInActiveProject) {
         DBIO.successful(())
       } else {

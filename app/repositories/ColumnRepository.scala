@@ -1,11 +1,11 @@
 package repositories
 
-import db.MyPostgresProfile.api.{columnStatusTypeMapper, projectStatusTypeMapper}
+import db.MyPostgresProfile.api.{columnStatusTypeMapper, projectStatusTypeMapper, taskStatusTypeMapper}
 import dto.request.column.UpdateColumnRequest
 import dto.response.column.ColumnWithTasksResponse
 import dto.response.task.TaskSummaryResponse
 import models.Enums.ColumnStatus.ColumnStatus
-import models.Enums.{ColumnStatus, ProjectStatus}
+import models.Enums.{ColumnStatus, ProjectStatus, TaskStatus}
 import models.entities.Column
 import models.tables.TableRegistry.{columns, projects, tasks}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -43,7 +43,7 @@ class ColumnRepository @Inject()(
       .result
       .flatMap { cols =>
         tasks
-          .filter(_.columnId.inSet(cols.flatMap(_.id)))
+          .filter(t => t.columnId.inSet(cols.flatMap(_.id)) && t.status === TaskStatus.active)
           .map(t => (t.columnId, t.id, t.name, t.position))
           .sortBy(_._4.asc.nullsLast)
           .result
