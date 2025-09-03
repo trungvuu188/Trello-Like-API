@@ -2,13 +2,11 @@
 
 CREATE TYPE task_status AS ENUM ('active', 'archived', 'deleted');
 
-ALTER TABLE tasks
-DROP COLUMN IF EXISTS project_id,
-DROP COLUMN IF EXISTS assigned_to,
-ADD COLUMN "status" task_status DEFAULT 'active',
-ADD COLUMN "is_completed" BOOLEAN DEFAULT FALSE,
-ADD CONSTRAINT fk_tasks_column_id FOREIGN KEY (column_id) REFERENCES "columns"(id)
-;
+ALTER TABLE tasks DROP COLUMN IF EXISTS project_id;
+ALTER TABLE tasks DROP COLUMN IF EXISTS assigned_to;
+ALTER TABLE tasks ADD COLUMN "status" task_status DEFAULT 'active';
+ALTER TABLE tasks ADD COLUMN "is_completed" BOOLEAN DEFAULT FALSE;
+ALTER TABLE tasks ADD CONSTRAINT fk_tasks_column_id FOREIGN KEY (column_id) REFERENCES "columns"(id);
 
 CREATE TABLE user_tasks (
     id SERIAL PRIMARY KEY,
@@ -21,11 +19,11 @@ CREATE TABLE user_tasks (
     CONSTRAINT fk_user_tasks_assigned_by FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
-ALTER TABLE users
-ADD CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id);
+ALTER TABLE users ADD CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id);
 
 ALTER TABLE user_workspaces
-ADD CONSTRAINT fk_user_workspaces_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ADD CONSTRAINT fk_user_workspaces_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE user_workspaces
 ADD CONSTRAINT fk_user_workspaces_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE;
 
 # --- !Downs

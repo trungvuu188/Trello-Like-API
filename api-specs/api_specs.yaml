@@ -702,7 +702,7 @@ paths:
                 message: "Workspace not found"
 
 
-  /workspaces/projects/{projectId}/complete:
+  /projects/{projectId}/complete:
     patch:
       tags:
         - Projects
@@ -764,7 +764,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/{projectId}/delete:
+  /projects/{projectId}/delete:
     patch:
       tags:
         - Projects
@@ -823,7 +823,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/{projectId}/reopen:
+  /projects/{projectId}/reopen:
     patch:
       tags:
         - Projects
@@ -885,7 +885,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/completed:
+  /projects/completed:
     get:
       tags:
         - Projects
@@ -1555,7 +1555,7 @@ paths:
           required: true
           description: Task ID
           schema:
-              type: integer
+            type: integer
       responses:
         '200':
           description: Task details retrieved successfully
@@ -2143,57 +2143,57 @@ components:
             $ref: '#/components/schemas/TaskSummaryResponse'
 
     TaskDetailResponse:
-        type: object
-        properties:
-          id:
-            type: integer
-            description: Task ID
-            example: 1
-          name:
-            type: string
-            description: Task name
-            example: "Implement authentication"
-          description:
-            type: string
-            nullable: true
-            description: Task description
-            example: "This task involves implementing user authentication"
-          startDate:
-            type: string
-            format: date-time
-            nullable: true
-            description: Start date of the task in ISO 8601 format
-            example: "2023-12-31T23:59:59Z"
-          endDate:
-            type: string
-            format: date-time
-            nullable: true
-            description: End date of the task in ISO 8601 format
-            example: "2024-01-15T23:59:59Z"
-          priority:
-            $ref: '#/components/schemas/TaskPriority'
-            nullable: true
-            description: Task priority level
-            example: "HIGH"
-          position:
-            type: integer
-            description: Position of the task in the column
-            example: 1
-          columnId:
-            type: integer
-            description: ID of the column containing the task
-            example: 2
-          isCompleted:
-            type: boolean
-            description: Indicates if the task is completed
-            example: false
-          createdAt:
-            type: string
-            format: date-time
-            description: Timestamp when the task was created
-            example: "2023-10-01T12:00:00Z"
-          updatedAt:
-            type: string
-            format: date-time
-            description: Timestamp when the task was last updated
-            example: "2023-10-05T15:30:00Z"
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Task ID
+          example: 1
+        name:
+          type: string
+          description: Task name
+          example: "Implement authentication"
+        description:
+          type: string
+          nullable: true
+          description: Task description
+          example: "This task involves implementing user authentication"
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Start date of the task in ISO 8601 format
+          example: "2023-12-31T23:59:59Z"
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: End date of the task in ISO 8601 format
+          example: "2024-01-15T23:59:59Z"
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+          nullable: true
+          description: Task priority level
+          example: "HIGH"
+        position:
+          type: integer
+          description: Position of the task in the column
+          example: 1
+        columnId:
+          type: integer
+          description: ID of the column containing the task
+          example: 2
+        isCompleted:
+          type: boolean
+          description: Indicates if the task is completed
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was created
+          example: "2023-10-01T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was last updated
+          example: "2023-10-05T15:30:00Z"
