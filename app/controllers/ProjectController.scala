@@ -102,4 +102,15 @@ class ProjectController @Inject()(
         Ok(Json.toJson(apiResponse))
       }
     }
+
+  /** GET /projects/:projectId/members */
+  def getAllMembersInProject(projectId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.getAllMembersInProject(projectId, userId).map { members =>
+        val apiResponse =
+          ApiResponse.success("Project members retrieved", members)
+        Ok(Json.toJson(apiResponse))
+      }
+    }
 }

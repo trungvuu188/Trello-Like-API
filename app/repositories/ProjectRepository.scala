@@ -8,9 +8,11 @@ import dto.response.project.{
   CompletedProjectSummariesResponse,
   ProjectSummariesResponse
 }
+import dto.response.user.UserInProjectResponse
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.{ProjectStatus, UserProjectRole}
 import models.entities.{Project, UserProject}
+import models.tables.TableRegistry.users
 import models.tables.{ProjectTable, UserProjectTable, WorkspaceTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
@@ -88,5 +90,13 @@ class ProjectRepository @Inject()(
       p <- projects
       if p.id === up.projectId && p.status === ProjectStatus.active
     } yield up).exists.result
+  }
+
+  def getAllMembersInProject(projectId: Int): DBIO[Seq[UserInProjectResponse]] = {
+    (for {
+      up <- userProjects if up.projectId === projectId
+      u <- users if u.id === up.userId
+    } yield (u.id, u.name)).result
+      .map(_.map((UserInProjectResponse.apply _).tupled))
   }
 }

@@ -2,6 +2,7 @@ package services
 
 import dto.request.project.CreateProjectRequest
 import dto.response.project.ProjectSummariesResponse
+import dto.response.user.UserInProjectResponse
 import exception.AppException
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.{ProjectStatus, ProjectVisibility}
@@ -135,6 +136,30 @@ class ProjectService @Inject()(
     userId: Int
   ): Future[Seq[dto.response.project.CompletedProjectSummariesResponse]] = {
     db.run(projectRepository.findCompletedProjectsByUserId(userId))
+  }
+
+  def getAllMembersInProject(
+    projectId: Int,
+    userId: Int
+  ): Future[Seq[UserInProjectResponse]] = {
+    val action = for {
+      isUserInActiveProject <- projectRepository.isUserInActiveProject(
+        userId,
+        projectId
+      )
+        _ <- if (isUserInActiveProject) {
+            DBIO.successful(())
+        } else {
+            DBIO.failed(
+            AppException(
+                message = "Project not found",
+                statusCode = Status.NOT_FOUND
+            )
+            )
+        }
+      members <- projectRepository.getAllMembersInProject(projectId)
+    } yield members
+    db.run(action)
   }
 
 }

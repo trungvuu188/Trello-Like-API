@@ -89,8 +89,8 @@ class ColumnService @Inject()(
                    userId: Int): Future[Int] = {
     val checkAndUpdate = for {
       isUserInActiveProject <- projectRepository.isUserInActiveProject(
-        projectId,
-        userId
+        userId,
+        projectId
       )
       result <- if (isUserInActiveProject) {
         columnRepository.update(req, columnId)
