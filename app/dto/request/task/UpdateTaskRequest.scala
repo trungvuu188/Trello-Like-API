@@ -57,6 +57,6 @@ object UpdateTaskRequest {
         identity
       ))(UpdateTaskRequest.apply _)
 
-  implicit val writes: Writes[CreateTaskRequest] =
-    Json.writes[CreateTaskRequest]
+  implicit val writes: Writes[UpdateTaskRequest] =
+    Json.writes[UpdateTaskRequest]
 }

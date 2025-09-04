@@ -1614,6 +1614,61 @@ paths:
                   - type: object
               example:
                 message: "Task with ID 1 does not exist"
+    delete:
+      tags:
+        - Tasks
+      summary: Delete an archived task
+      description: Deletes an archived task in a column
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task deleted successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only archived tasks can be deleted"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 22 does not exist"
 
   /tasks/{taskId}/archive:
     patch:
@@ -1707,63 +1762,6 @@ paths:
                   - type: object
               example:
                 message: "Only archived tasks can be restored"
-        '401':
-          description: Unauthenticated request
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-              example:
-                message: "Authentication required"
-
-        '404':
-          description: Task not found
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-              example:
-                message: "Task with ID 22 does not exist"
-
-  /tasks/{taskId}/delete:
-    delete:
-      tags:
-        - Tasks
-      summary: Delete an archived task
-      description: Deletes an archived task in a column
-      parameters:
-        - in: path
-          name: taskId
-          required: true
-          description: Task ID
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Task deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-              example:
-                message: "Task deleted successfully"
-
-        '400':
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
-              example:
-                message: "Only archived tasks can be deleted"
         '401':
           description: Unauthenticated request
           content:

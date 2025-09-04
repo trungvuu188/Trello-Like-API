@@ -50,4 +50,4 @@ PATCH  /api/tasks/:taskId              controllers.TaskController.update(taskId:
 GET    /api/tasks/:taskId              controllers.TaskController.getById(taskId: Int)
 PATCH  /api/tasks/:taskId/archive      controllers.TaskController.archive(taskId: Int)
 PATCH  /api/tasks/:taskId/restore      controllers.TaskController.restore(taskId: Int)
-DELETE  /api/tasks/:taskId/delete      controllers.TaskController.delete(taskId: Int)
+DELETE  /api/tasks/:taskId             controllers.TaskController.delete(taskId: Int)

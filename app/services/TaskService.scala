@@ -150,6 +150,11 @@ class TaskService @Inject()(taskRepository: TaskRepository,
           ))
         case Some(_) =>
           DBIO.failed(AppException(errorMsg, Status.BAD_REQUEST))
+        case None =>
+          DBIO.failed(AppException(
+            message = s"Task with ID $taskId does not exist",
+            statusCode = Status.NOT_FOUND)
+          )
       }
     } yield updatedRows
 

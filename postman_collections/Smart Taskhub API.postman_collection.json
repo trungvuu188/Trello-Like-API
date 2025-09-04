@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "dc84dd2a-f693-4dfd-af80-ece0b58e22a5",
+		"_postman_id": "6763cacb-e8f3-40a7-a5a5-3589aae88c13",
 		"name": "Smart Taskhub API",
 		"description": "API documentation for Smart Taskhub, a task and project management application.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
@@ -916,7 +916,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1076,7 +1076,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1368,7 +1368,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1535,7 +1535,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1780,7 +1780,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1930,7 +1930,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2119,7 +2119,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2308,7 +2308,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2555,7 +2555,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/url-preview?url=https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+							"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2565,7 +2565,7 @@
 							"query": [
 								{
 									"key": "url",
-									"value": "https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+									"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 									"description": "(Required) The URL to preview"
 								}
 							]
@@ -2584,7 +2584,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+									"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2594,7 +2594,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+											"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 											"description": "(Required) The URL to preview"
 										}
 									]
@@ -2647,7 +2647,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+									"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2657,7 +2657,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "https://gYxHxqTEWHg.mnduHqBrCcHAGTd.oB87favD3jxSMDMlxiPh",
+											"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
 											"description": "(Required) The URL to preview"
 										}
 									]
@@ -2770,7 +2770,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -3068,7 +3068,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -3233,12 +3233,12 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Project ID"
 								},
 								{
 									"key": "columnId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3499,7 +3499,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3688,7 +3688,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3876,7 +3876,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -4081,7 +4081,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -4445,7 +4445,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -4789,7 +4789,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -4952,6 +4952,190 @@
 					]
 				},
 				{
+					"name": "Delete an archived task",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/:taskId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								":taskId"
+							],
+							"variable": [
+								{
+									"key": "taskId",
+									"value": "5717",
+									"description": "(Required) Task ID"
+								}
+							]
+						},
+						"description": "Deletes an archived task in a column"
+					},
+					"response": [
+						{
+							"name": "Task deleted successfully",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/:taskId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tasks",
+										":taskId"
+									],
+									"variable": [
+										{
+											"key": "taskId"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Task deleted successfully\"\n}"
+						},
+						{
+							"name": "Invalid request data",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/:taskId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tasks",
+										":taskId"
+									],
+									"variable": [
+										{
+											"key": "taskId"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Only archived tasks can be deleted\"\n}"
+						},
+						{
+							"name": "Unauthenticated request",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/:taskId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tasks",
+										":taskId"
+									],
+									"variable": [
+										{
+											"key": "taskId"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Authentication required\"\n}"
+						},
+						{
+							"name": "Task not found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/:taskId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tasks",
+										":taskId"
+									],
+									"variable": [
+										{
+											"key": "taskId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Task with ID 22 does not exist\"\n}"
+						}
+					]
+				},
+				{
 					"name": "Archive a task",
 					"request": {
 						"method": "PATCH",
@@ -4974,7 +5158,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -5163,7 +5347,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5300",
+									"value": "5717",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -5307,195 +5491,6 @@
 										"tasks",
 										":taskId",
 										"restore"
-									],
-									"variable": [
-										{
-											"key": "taskId"
-										}
-									]
-								}
-							},
-							"status": "Not Found",
-							"code": 404,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"Task with ID 22 does not exist\"\n}"
-						}
-					]
-				},
-				{
-					"name": "Delete an archived task",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/tasks/:taskId/delete",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"tasks",
-								":taskId",
-								"delete"
-							],
-							"variable": [
-								{
-									"key": "taskId",
-									"value": "5300",
-									"description": "(Required) Task ID"
-								}
-							]
-						},
-						"description": "Deletes an archived task in a column"
-					},
-					"response": [
-						{
-							"name": "Task deleted successfully",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/tasks/:taskId/delete",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"tasks",
-										":taskId",
-										"delete"
-									],
-									"variable": [
-										{
-											"key": "taskId"
-										}
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"Task deleted successfully\"\n}"
-						},
-						{
-							"name": "Invalid request data",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/tasks/:taskId/delete",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"tasks",
-										":taskId",
-										"delete"
-									],
-									"variable": [
-										{
-											"key": "taskId"
-										}
-									]
-								}
-							},
-							"status": "Bad Request",
-							"code": 400,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"Only archived tasks can be deleted\"\n}"
-						},
-						{
-							"name": "Unauthenticated request",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/tasks/:taskId/delete",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"tasks",
-										":taskId",
-										"delete"
-									],
-									"variable": [
-										{
-											"key": "taskId"
-										}
-									]
-								}
-							},
-							"status": "Unauthorized",
-							"code": 401,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"Authentication required\"\n}"
-						},
-						{
-							"name": "Task not found",
-							"originalRequest": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/tasks/:taskId/delete",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"tasks",
-										":taskId",
-										"delete"
 									],
 									"variable": [
 										{
