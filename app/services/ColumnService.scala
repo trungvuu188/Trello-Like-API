@@ -1,6 +1,6 @@
 package services
 
-import dto.request.column.{CreateColumnRequest, UpdateColumnRequest}
+import dto.request.column.{CreateColumnRequest, UpdateColumnPositionRequest, UpdateColumnRequest}
 import dto.response.column.ColumnWithTasksResponse
 import exception.AppException
 import models.Enums.ColumnStatus
@@ -156,4 +156,23 @@ class ColumnService @Inject()(
         next = ColumnStatus.deleted,
         errorMsg = "Only archived columns can be deleted"
         )
+
+  def updatePosition(columnId: Int, request: UpdateColumnPositionRequest, userId: Int): Future[Int] = {
+    val action = for {
+      maybeStatus <- columnRepository.findStatusIfUserInProject(
+        columnId,
+        userId
+      )
+      updatedRows <- maybeStatus match {
+        case Some(s) if s == ColumnStatus.active =>
+          columnRepository.updatePosition(columnId, request.position)
+        case Some(_) =>
+          DBIO.failed(AppException("Only active columns can change position", Status.BAD_REQUEST))
+        case None =>
+          DBIO.failed(AppException("Column not found", Status.NOT_FOUND))
+      }
+    } yield updatedRows
+
+    db.run(action)
+  }
 }

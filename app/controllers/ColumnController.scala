@@ -1,16 +1,12 @@
 package controllers
 
-import dto.request.column.{CreateColumnRequest, UpdateColumnRequest}
+import dto.request.column.{CreateColumnRequest, UpdateColumnPositionRequest, UpdateColumnRequest}
 import dto.response.ApiResponse
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
+import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  MessagesAbstractController,
-  MessagesControllerComponents
-}
+import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
 import services.ColumnService
 import utils.WritesExtras.unitWrites
 import validations.ValidationHandler
@@ -106,5 +102,22 @@ class ColumnController @Inject()(
         Ok(Json.toJson(ApiResponse[Unit]("Column deleted successfully")))
       }
     }
-
+  /** PATCH /columns/:columnId/position */
+  def updatePosition(columnId: Int): Action[JsValue] =
+    authenticatedActionWithUser.async(parse.json) { request =>
+      implicit val messages: Messages = request.messages
+      val updatedBy = request.userToken.userId
+      handleJsonValidation[UpdateColumnPositionRequest](request.body) {
+        updatePositionDto =>
+          columnService
+            .updatePosition(columnId, updatePositionDto, updatedBy)
+            .map { _ =>
+              Ok(
+                Json.toJson(
+                  ApiResponse[Unit]("Column position updated successfully")
+                )
+              )
+            }
+      }
+    }
 }

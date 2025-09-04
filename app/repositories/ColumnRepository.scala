@@ -79,6 +79,10 @@ class ColumnRepository @Inject()(
     columns.filter(_.id === columnId).map(_.status).update(status)
   }
 
+  def updatePosition(columnId: Int, position: Int): DBIO[Int] = {
+    columns.filter(_.id === columnId).map(_.position).update(position)
+  }
+
   def findStatusIfUserInProject(columnId: Int, userId: Int): DBIO[Option[ColumnStatus]] = {
     val query = for {
       (c, p) <- columns join projects on (_.projectId === _.id)
