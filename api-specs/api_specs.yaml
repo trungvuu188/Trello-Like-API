@@ -2195,3 +2195,41 @@ components:
           format: date-time
           description: Timestamp when the task was last updated
           example: "2023-10-05T15:30:00Z"
+    ColumnSummariesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Column ID
+          example: 1
+        name:
+          type: string
+          description: Column name
+          example: "To Do"
+        position:
+          type: integer
+          description: Position of the column in the project board
+          example: 1
+
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Project ID
+          example: 101
+        name:
+          type: string
+          description: Project name
+          example: "Website Redesign"
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+
+    ProjectStatus:
+      type: string
+      enum:
+        - active
+        - completed
+        - deleted
+      description: Project status
+      example: "active"
