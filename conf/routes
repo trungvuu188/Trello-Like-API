@@ -35,6 +35,7 @@ PATCH   /api/projects/:projectId/delete     controllers.ProjectController.delete
 PATCH   /api/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
 GET    /api/projects/completed       controllers.ProjectController.getCompletedProjectsByUser
 GET    /api/projects/:projectId/members        controllers.ProjectController.getAllMembersInProject(projectId: Int)
+GET    /api/projects/:projectId        controllers.ProjectController.getProjectById(projectId: Int)
 
 # Column routes
 POST   /api/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)

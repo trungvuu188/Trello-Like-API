@@ -1,13 +1,7 @@
 package repositories
 
-import db.MyPostgresProfile.api.{
-  projectStatusTypeMapper,
-  userProjectRoleTypeMapper
-}
-import dto.response.project.{
-  CompletedProjectSummariesResponse,
-  ProjectSummariesResponse
-}
+import db.MyPostgresProfile.api.{projectStatusTypeMapper, userProjectRoleTypeMapper}
+import dto.response.project.{CompletedProjectSummariesResponse, ProjectResponse, ProjectSummariesResponse}
 import dto.response.user.UserInProjectResponse
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.{ProjectStatus, UserProjectRole}
@@ -98,5 +92,16 @@ class ProjectRepository @Inject()(
       u <- users if u.id === up.userId
     } yield (u.id, u.name)).result
       .map(_.map((UserInProjectResponse.apply _).tupled))
+  }
+
+  def findById(projectId: Int): DBIO[Option[ProjectResponse]] = {
+    projects
+      .filter(_.id === projectId)
+      .map(p => (p.id, p.name, p.status))
+      .result
+      .headOption
+      .map(_.map { case (id, name, status) =>
+        ProjectResponse(id, name, status)
+      })
   }
 }
