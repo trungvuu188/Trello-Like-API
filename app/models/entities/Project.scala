@@ -1,6 +1,7 @@
 package models.entities
 
-import models.Enums.{ProjectStatus, ProjectVisibility}
+import models.Enums.ColumnStatus.ColumnStatus
+import models.Enums.{ColumnStatus, ProjectStatus, ProjectVisibility}
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.ProjectVisibility.ProjectVisibility
 
@@ -20,9 +21,10 @@ case class Project(
 
 case class Column(
                    id: Option[Int] = None,
-                   projectId: Option[Int] = None,
-                   name: Option[String] = None,
-                   position: Option[Int] = None,
-                   createdAt: Option[LocalDateTime] = None,
-                   updatedAt: Option[LocalDateTime] = None
+                   projectId: Int,
+                   name: String,
+                   position: Int,
+                   createdAt: Instant = Instant.now(),
+                   updatedAt: Instant = Instant.now(),
+                   status: ColumnStatus = ColumnStatus.active
                  )

@@ -2,15 +2,11 @@ package controllers
 
 import dto.request.workspace.{CreateWorkspaceRequest, UpdateWorkspaceRequest}
 import dto.response.ApiResponse
+import exception.AppException
 import play.api.i18n.I18nSupport.RequestWithMessagesApi
 import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  MessagesAbstractController,
-  MessagesControllerComponents
-}
+import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
 import services.WorkspaceService
 import utils.WritesExtras.unitWrites
 import validations.ValidationHandler
@@ -45,6 +41,18 @@ class WorkspaceController @Inject()(
               Created(
                 Json.toJson(ApiResponse[Unit]("Workspace created successfully"))
               )
+          }.recover {
+            case ex: AppException => BadRequest(
+              Json.obj(
+                "message" -> "Duplicate workspace name",
+                "errors" -> Json.arr(
+                  Json.obj(
+                    "field" -> "name",
+                    "message" -> ex.message
+                  )
+                )
+              )
+            )
           }
       }
     }
@@ -106,6 +114,18 @@ class WorkspaceController @Inject()(
                 Json.toJson(ApiResponse[Unit]("Workspace updated successfully"))
               )
             }
+      }.recover {
+        case ex: AppException => BadRequest(
+          Json.obj(
+            "message" -> "Duplicate workspace name",
+            "errors" -> Json.arr(
+              Json.obj(
+                "field" -> "name",
+                "message" -> ex.message
+              )
+            )
+          )
+        )
       }
     }
 }

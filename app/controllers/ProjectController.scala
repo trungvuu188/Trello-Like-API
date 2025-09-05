@@ -62,7 +62,7 @@ class ProjectController @Inject()(
       }
     }
 
-  /** PATCH /workspace/projects/:projectId/complete */
+  /** PATCH /projects/:projectId/complete */
   def completeProject(projectId: Int): Action[AnyContent] = {
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
@@ -72,7 +72,7 @@ class ProjectController @Inject()(
     }
   }
 
-  /** PATCH /workspace/projects/:projectId/delete */
+  /** PATCH /projects/:projectId/delete */
   def deleteProject(projectId: Int): Action[AnyContent] = {
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
@@ -82,7 +82,7 @@ class ProjectController @Inject()(
     }
   }
 
-  /** PATCH /workspace/projects/:projectId/reopen */
+  /** PATCH /projects/:projectId/reopen */
   def reopenProject(projectId: Int): Action[AnyContent] = {
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
@@ -92,13 +92,24 @@ class ProjectController @Inject()(
     }
   }
 
-  /** GET /workspaces/projects/completed */
+  /** GET /projects/completed */
   def getCompletedProjectsByUser: Action[AnyContent] =
     authenticatedActionWithUser.async { request =>
       val userId = request.userToken.userId
       projectService.getCompletedProjectsByUserId(userId).map { projects =>
         val apiResponse =
           ApiResponse.success("Completed projects retrieved", projects)
+        Ok(Json.toJson(apiResponse))
+      }
+    }
+
+  /** GET /projects/:projectId/members */
+  def getAllMembersInProject(projectId: Int): Action[AnyContent] =
+    authenticatedActionWithUser.async { request =>
+      val userId = request.userToken.userId
+      projectService.getAllMembersInProject(projectId, userId).map { members =>
+        val apiResponse =
+          ApiResponse.success("Project members retrieved", members)
         Ok(Json.toJson(apiResponse))
       }
     }

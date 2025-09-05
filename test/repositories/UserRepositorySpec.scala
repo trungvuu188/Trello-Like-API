@@ -32,34 +32,6 @@ class UserRepositorySpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
   val userRepository = new UserRepository(dbConfigProvider)(ExecutionContext.global)
 
-  override def beforeEach(): Unit = {
-    val users = TableRegistry.users
-    val roles = TableRegistry.roles
-
-    val disableFK = sqlu"SET REFERENTIAL_INTEGRITY FALSE"
-    val enableFK = sqlu"SET REFERENTIAL_INTEGRITY TRUE"
-
-    val setup = DBIO.seq(
-      disableFK,
-      sqlu"TRUNCATE TABLE users",
-      sqlu"TRUNCATE TABLE roles",
-      enableFK,
-      roles += models.entities.Role(Some(1), "user"),
-      users ++= Seq(
-        User(
-          id = Some(1),
-          name = "test user 1",
-          email = "user1@test.com",
-          password = "hashed_password",
-          roleId = Some(1),
-          createdAt = LocalDateTime.now(),
-          updatedAt = LocalDateTime.now(),
-        )
-      )
-    )
-    Await.result(db.run(setup), 10.seconds)
-  }
-
   "UserRepository" should {
 
     "create a new user" in {
@@ -73,10 +45,10 @@ class UserRepositorySpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
     }
 
     "find user by email" in {
-      val result = Await.result(userRepository.findByEmail("user1@test.com"), 5.seconds)
+      val result = Await.result(userRepository.findByEmail("bob@example.com"), 5.seconds)
 
       result mustBe defined
-      result.get.name mustBe "test user 1"
+      result.get.name mustBe "Bob"
     }
 
 //    "find user by id" in {

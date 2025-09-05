@@ -31,19 +31,6 @@ class RoleRepositorySpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
   val repo = new RoleRepository(dbConfigProvider)(ExecutionContext.global)
 
-  override def beforeEach(): Unit = {
-    val roles = TableRegistry.roles
-    val setup = DBIO.seq(
-      roles.schema.dropIfExists,
-      roles.schema.create,
-      roles ++= Seq(
-        Role(Some(1), "user"),
-        Role(Some(2), "admin")
-      )
-    )
-    Await.result(db.run(setup), 5.seconds)
-  }
-
   "RoleRepository" should {
 
     "find role by name" in {

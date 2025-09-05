@@ -17,6 +17,10 @@ tags:
     description: Project management endpoints
   - name: URL Preview
     description: URL preview service endpoints
+  - name: Columns
+    description: Column management endpoints
+  - name: Tasks
+    description: Task management endpoints
 
 paths:
   # Authentication endpoints
@@ -400,11 +404,12 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                message: "Workspace name already exists"
+                message: "Duplicate workspace name"
+                errors:
+                  - field: "name"
+                    message: "Workspace name already exists"
 
 
   /workspaces/{id}:
@@ -497,6 +502,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
         '401':
           description: Unauthenticated request
           content:
@@ -524,11 +530,12 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiResponse'
-                  - type: object
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                message: "Workspace name already exists"
+                message: "Duplicate workspace name"
+                errors:
+                  - field: "name"
+                    message: "Workspace name already exists"
 
 
     delete:
@@ -695,7 +702,7 @@ paths:
                 message: "Workspace not found"
 
 
-  /workspaces/projects/{projectId}/complete:
+  /projects/{projectId}/complete:
     patch:
       tags:
         - Projects
@@ -757,7 +764,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/{projectId}/delete:
+  /projects/{projectId}/delete:
     patch:
       tags:
         - Projects
@@ -816,7 +823,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/{projectId}/reopen:
+  /projects/{projectId}/reopen:
     patch:
       tags:
         - Projects
@@ -878,7 +885,7 @@ paths:
                 message: "Project not found or you are not the owner"
 
 
-  /workspaces/projects/completed:
+  /projects/completed:
     get:
       tags:
         - Projects
@@ -982,6 +989,801 @@ paths:
               schema:
                 type: string
 
+  # Column endpoints
+  /projects/{projectId}/columns:
+    post:
+      tags:
+        - Columns
+      summary: Create a new column
+      description: Creates a new column in the specified project
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: Project ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateColumnRequest'
+      responses:
+        '201':
+          description: Column created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        example: null
+              example:
+                message: "Column created successfully with ID: 1"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Validation failed"
+                errors:
+                  - field: "name"
+                    message: "Column name is required"
+                  - field: "position"
+                    message: "Position must be at least 1"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project 1 is not found or not active"
+        '409':
+          description: Column position already exists
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column position 1 already exists in project 1"
+
+    get:
+      tags:
+        - Columns
+      summary: Get all columns in project
+      description: Retrieves all columns in the specified project along with their tasks
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: Project ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Columns retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ColumnWithTasksResponse'
+              example:
+                message: "Columns retrieved"
+                data:
+                  - id: 1
+                    name: "To Do"
+                    position: 1
+                    tasks:
+                      - id: 1
+                        name: "Implement authentication"
+                        position: 1
+                  - id: 2
+                    name: "In Progress"
+                    position: 2
+                    tasks:
+                      - id: 2
+                        name: "Set up database"
+                        position: 2
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project 1 is not exists or not active"
+
+  /projects/{projectId}/columns/{columnId}:
+    patch:
+      tags:
+        - Columns
+      summary: Update a column
+      description: Updates the details of a specific column in a project
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: Project ID
+          schema:
+            type: integer
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateColumnRequest'
+      responses:
+        '200':
+          description: Column updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column updated successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Validation failed"
+                errors:
+                  - field: "name"
+                    message: "Column name is required"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Project or column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column is not found or not active"
+
+  /columns/{columnId}/archive:
+    patch:
+      tags:
+        - Columns
+      summary: Archive a column
+      description: Archives a specific column in a project
+      parameters:
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Column archived successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column archived successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only active columns can be archived"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column not found"
+
+  /columns/{columnId}/restore:
+    patch:
+      tags:
+        - Columns
+      summary: Restore an archived column
+      description: Restores a previously archived column in a project
+      parameters:
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Column restored successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column restored successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only archived columns can be restored"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column not found"
+
+  /columns/{columnId}:
+    delete:
+      tags:
+        - Columns
+      summary: Delete a column
+      description: Deletes a specific column in a project
+      parameters:
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Column deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column deleted successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only archived columns can be deleted"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column not found"
+
+  /columns/{columnId}/tasks:
+    post:
+      tags:
+        - Tasks
+      summary: Create a new task
+      description: Creates a new task in the specified column
+      parameters:
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        example: null
+              example:
+                message: "Task created successfully with ID: 1"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Validation failed"
+                errors:
+                  - field: "name"
+                    message: "Task name is required"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+        '403':
+          description: User is not a member of the project or project is not active
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project is inactive or user is not a member of the project"
+        '404':
+          description: Column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column with ID 1 does not exist or is not active"
+        '409':
+          description: Task name already exists
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task name already exists in the column"
+
+  /tasks/{taskId}:
+    patch:
+      tags:
+        - Tasks
+      summary: Update a task
+      description: Updates the details of a specific task in a column
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task updated successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Validation failed"
+                errors:
+                  - field: "name"
+                    message: "Task name is required"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+        '403':
+          description: User is not a member of the project or project is not active
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project is inactive or user is not a member of the project"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 1 does not exist or is not active"
+        '409':
+          description: Task name already exists
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task name already exists in the column"
+
+    get:
+      tags:
+        - Tasks
+      summary: Get task details
+      description: Retrieves detailed information about a specific task
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task details retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskDetailResponse'
+              example:
+                message: "Task retrieved successfully"
+                data:
+                  id: 1
+                  name: "Implement authentication"
+                  description: "This task involves implementing user authentication"
+                  startDate: "2023-12-31T23:59:59Z"
+                  endDate: "2024-01-15T23:59:59Z"
+                  priority: "HIGH"
+                  status: "active"
+                  position: 1
+                  columnId: 1
+                  isCompleted: false
+                  createdAt: "2023-10-01T12:00:00Z"
+                  updatedAt: "2023-10-05T15:30:00Z"
+
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+        '403':
+          description: User is not a member of the project or project is not active
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project is inactive or user is not a member of the project"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 1 does not exist"
+    delete:
+      tags:
+        - Tasks
+      summary: Delete an archived task
+      description: Deletes an archived task in a column
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task deleted successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only archived tasks can be deleted"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 22 does not exist"
+
+  /tasks/{taskId}/archive:
+    patch:
+      tags:
+        - Tasks
+      summary: Archive a task
+      description: Archives a specific task in a column
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task archived successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task archived successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only active tasks can be archived"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 22 does not exist"
+
+  /tasks/{taskId}/restore:
+    patch:
+      tags:
+        - Tasks
+      summary: Restore an archived task
+      description: Restores a previously archived task in a column
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          description: Task ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task restored successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task restored successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Only archived tasks can be restored"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Task with ID 22 does not exist"
+
 components:
   schemas:
     # Request schemas
@@ -1077,6 +1879,92 @@ components:
             - private
           default: workspace
           description: Project visibility
+
+    CreateColumnRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Column name
+          example: "To Do"
+        position:
+          type: integer
+          minimum: 1
+          description: Position of the column in the project board
+          example: 1
+
+    UpdateColumnRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Column name
+          example: "In Progress"
+
+
+    CreateTaskRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Task name
+          example: "Task 1"
+
+    TaskPriority:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+      description: Task priority level
+      example: "medium"
+
+    UpdateTaskRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Task name
+          example: "Updated Task Name"
+        description:
+          type: string
+          nullable: true
+          description: Optional task description
+          example: "This is an updated description for the task"
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional start date for the task in ISO 8601 format
+          example: "2023-12-31T23:59:59Z"
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional end date for the task in ISO 8601 format
+          example: "2024-01-15T23:59:59Z"
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+          nullable: true
+          description: Optional task priority level
+          example: "HIGH"
+        isCompleted:
+          type: boolean
+          description: Indicates if the task is completed
+          example: false
+
 
     # Response schemas
     ApiResponse:
@@ -1214,3 +2102,96 @@ components:
           format: uri
           description: Favicon URL
           example: "https://example.com/favicon.ico"
+
+    TaskSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Task ID
+          example: 1
+        name:
+          type: string
+          description: Task name
+          example: "Implement authentication"
+        position:
+          type: integer
+          description: Position of the task in the column
+          example: 1
+
+    ColumnWithTasksResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Column ID
+          example: 1
+        name:
+          type: string
+          description: Column name
+          example: "To Do"
+        position:
+          type: integer
+          description: Position of the column in the project board
+          example: 1
+        tasks:
+          type: array
+          description: List of tasks in the column
+          items:
+            $ref: '#/components/schemas/TaskSummaryResponse'
+
+    TaskDetailResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Task ID
+          example: 1
+        name:
+          type: string
+          description: Task name
+          example: "Implement authentication"
+        description:
+          type: string
+          nullable: true
+          description: Task description
+          example: "This task involves implementing user authentication"
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Start date of the task in ISO 8601 format
+          example: "2023-12-31T23:59:59Z"
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: End date of the task in ISO 8601 format
+          example: "2024-01-15T23:59:59Z"
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+          nullable: true
+          description: Task priority level
+          example: "HIGH"
+        position:
+          type: integer
+          description: Position of the task in the column
+          example: 1
+        columnId:
+          type: integer
+          description: ID of the column containing the task
+          example: 2
+        isCompleted:
+          type: boolean
+          description: Indicates if the task is completed
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was created
+          example: "2023-10-01T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was last updated
+          example: "2023-10-05T15:30:00Z"

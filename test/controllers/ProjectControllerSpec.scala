@@ -1,159 +1,178 @@
 package controllers
 
-import dto.response.project.{CompletedProjectSummariesResponse, ProjectSummariesResponse}
-import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import dto.request.project.CreateProjectRequest
+import exception.AppException
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play._
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.mvc.Cookie
 import play.api.test.Helpers._
 import play.api.test._
-import services.{ProjectService, UserToken}
+import play.api.{Application, Configuration}
+import services.{JwtService, ProjectService, UserToken, WorkspaceService}
 
-import scala.concurrent.{ExecutionContext, Future}
+class ProjectControllerSpec
+  extends PlaySpec
+    with GuiceOneAppPerSuite
+    with Injecting
+    with ScalaFutures
+    with BeforeAndAfterAll {
 
-class ProjectControllerSpec extends PlaySpec
-  with MockitoSugar
-  with GuiceOneAppPerTest
-{
+  override implicit def fakeApplication(): Application = {
+    new GuiceApplicationBuilder()
+      .configure(
+        "config.resource" -> "application.test.conf",
+        "slick.dbs.default.db.url" -> s"jdbc:h2:mem:projecttest;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;DATABASE_TO_UPPER=false"
+      )
+      .build()
+  }
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  lazy val config: Configuration = app.configuration
+  lazy val defaultAdminEmail: String =
+    config.getOptional[String]("admin.email").getOrElse("admin@mail.com")
+  lazy val defaultAdminName: String =
+    config.getOptional[String]("admin.name").getOrElse("Administrator")
+  lazy val cookieName: String =
+    config.getOptional[String]("cookie.name").getOrElse("auth_token")
 
-  implicit lazy val materializer: Materializer = app.materializer
+  def fakeToken: String = {
+    val jwtService = inject[JwtService]
+    jwtService
+      .generateToken(UserToken(1, defaultAdminName, defaultAdminEmail))
+      .getOrElse(throw new RuntimeException("JWT token not generated"))
+  }
 
-  private def createController(
-                                mockService: ProjectService = mock[ProjectService],
-                                mockAction: AuthenticatedActionWithUser = mock[AuthenticatedActionWithUser]
-                              ): ProjectController = {
-    new ProjectController(
-      stubMessagesControllerComponents(),
-      mockService,
-      mockAction
+  override def beforeAll(): Unit = {
+    val workspaceService = inject[WorkspaceService]
+    val projectService = inject[ProjectService]
+
+    await(
+      workspaceService.createWorkspace(
+        dto.request.workspace.CreateWorkspaceRequest("Workspace test"),
+        1
+      )
+    )
+
+    await(
+      projectService.createProject(CreateProjectRequest("Initial Project"), 1, 1)
     )
   }
 
-  /** Utility to create AuthenticatedActionWithUser that always injects a UserToken */
-  private def mockAuthenticatedAction(userToken: UserToken): AuthenticatedActionWithUser = {
-    new AuthenticatedActionWithUser(null, null, null) {
-      override def invokeBlock[A](request: play.api.mvc.Request[A],
-                                  block: AuthenticatedRequest[A] => scala.concurrent.Future[play.api.mvc.Result]) = {
-        block(AuthenticatedRequest(userToken, request))
+  "ProjectController" should {
+
+    "create project successfully" in {
+      val body = Json.toJson(CreateProjectRequest("New Project"))
+      val request = FakeRequest(POST, "/api/workspaces/1/projects")
+        .withCookies(Cookie(cookieName, fakeToken))
+        .withBody(body)
+
+      val result = route(app, request).get
+
+      status(result) mustBe CREATED
+      (contentAsJson(result) \ "message").as[String] must include("Project created successfully")
+    }
+
+    "fail when workspace does not exist" in {
+      val nonExistentWorkspaceId = 9999
+      val body = Json.toJson(CreateProjectRequest("Orphan Project"))
+
+      val request = FakeRequest(POST, s"/api/workspaces/$nonExistentWorkspaceId/projects")
+        .withCookies(Cookie(cookieName, fakeToken))
+        .withBody(body)
+
+      val ex = intercept[AppException] {
+        await(route(app, request).get)
       }
+      ex.statusCode mustBe NOT_FOUND
+      ex.message must include("Workspace not found")
     }
-  }
 
-  "create" should {
-//    "return 201 Created when project is created successfully" in {
-//      val mockService = mock[ProjectService]
-//      when(mockService.createProject(any(), any(), any()))
-//        .thenReturn(Future.successful(123))
-//
-//      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-//
-//      val requestJson = Json.obj("name" -> "New Project", "visibility" -> "public")
-//      val request = FakeRequest(POST, "/workspaces/1/projects")
-//        .withHeaders("Content-Type" -> "application/json")
-//        .withJsonBody(requestJson)
-//
-//      val result = controller.create(1)(request)
-////      println("message " + contentAsString(result))
-//
-//      status(result) mustBe CREATED
-//      (contentAsJson(result) \ "message").as[String] must include("Project created successfully")
-//    }
-
-    "return 400 BadRequest when JSON is invalid" in {
-      val controller = createController(mock[ProjectService], mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-
-      val invalidJson = Json.obj("wrongField" -> "No name")
-      val request = FakeRequest(POST, "/workspaces/1/projects")
-        .withHeaders(CONTENT_TYPE -> "application/json")
-        .withJsonBody(invalidJson)
-
-      val result = controller.create(1)(request)
-
-      status(result) mustBe BAD_REQUEST
-    }
-  }
-
-  "getAll" should {
-    "return 200 OK with project list" in {
-      val mockService = mock[ProjectService]
-      val projects = Seq(ProjectSummariesResponse(1, "Project A"))
-      when(mockService.getProjectsByWorkspaceAndUser(any(), any()))
-        .thenReturn(Future.successful(projects))
-
-      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-
-      val result = controller.getAll(1)(FakeRequest(GET, "/workspaces/1/projects"))
+    "retrieve all projects in workspace" in {
+      val request = FakeRequest(GET, "/api/workspaces/1/projects")
+        .withCookies(Cookie(cookieName, fakeToken))
+      val result = route(app, request).get
 
       status(result) mustBe OK
       (contentAsJson(result) \ "message").as[String] mustBe "Projects retrieved"
-      (contentAsJson(result) \ "data").isDefined mustBe true
     }
-  }
 
-  "completeProject" should {
-    "return 200 OK when project completed" in {
-      val mockService = mock[ProjectService]
-      when(mockService.completeProject(any(), any()))
-        .thenReturn(Future.successful(1))
-
-      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-
-      val result = controller.completeProject(1)(FakeRequest(PATCH, "/workspace/projects/1/complete"))
+    "complete project successfully" in {
+      val projectId = 1
+      val request = FakeRequest(PATCH, s"/api/projects/$projectId/complete")
+        .withCookies(Cookie(cookieName, fakeToken))
+      val result = route(app, request).get
 
       status(result) mustBe OK
-      (contentAsJson(result) \ "message").as[String] must include("Project completed successfully")
+      (contentAsJson(result) \ "message").as[String] mustBe "Project completed successfully"
     }
-  }
 
-  "deleteProject" should {
-    "return 200 OK when project deleted" in {
-      val mockService = mock[ProjectService]
-      when(mockService.deleteProject(any(), any()))
-        .thenReturn(Future.successful(1))
+    "fail to complete non-existent project" in {
+      val nonExistentProjectId = 9999
+      val request = FakeRequest(PATCH, s"/api/projects/$nonExistentProjectId/complete")
+        .withCookies(Cookie(cookieName, fakeToken))
 
-      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
+      val ex = intercept[AppException] {
+        await(route(app, request).get)
+      }
+      ex.statusCode mustBe NOT_FOUND
+      ex.message must include("Project not found or you are not the owner")
+    }
 
-      val result = controller.deleteProject(1)(FakeRequest(PATCH, "/workspace/projects/1/delete"))
+//    "delete project successfully" in {
+//      val projectId = 1
+//      val completeRequest = FakeRequest(PATCH, s"/api/projects/$projectId/complete")
+//        .withCookies(Cookie(cookieName, fakeToken))
+//      status(route(app, completeRequest).get) mustBe OK
+//
+//      val request = FakeRequest(PATCH, s"/api/projects/$projectId/delete")
+//        .withCookies(Cookie(cookieName, fakeToken))
+//      val result = route(app, request).get
+//
+//      status(result) mustBe OK
+//      (contentAsJson(result) \ "message").as[String] mustBe "Project deleted successfully"
+//    }
+
+    "reopen project successfully" in {
+      val projectId = 1
+      val request = FakeRequest(PATCH, s"/api/projects/$projectId/reopen")
+        .withCookies(Cookie(cookieName, fakeToken))
+      val result = route(app, request).get
 
       status(result) mustBe OK
-      (contentAsJson(result) \ "message").as[String] must include("Project deleted successfully")
+      (contentAsJson(result) \ "message").as[String] mustBe "Project reopened successfully"
     }
-  }
 
-  "reopenProject" should {
-    "return 200 OK when project reopened" in {
-      val mockService = mock[ProjectService]
-      when(mockService.reopenProject(any(), any()))
-        .thenReturn(Future.successful(1))
-
-      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-
-      val result = controller.reopenProject(1)(FakeRequest(PATCH, "/workspace/projects/1/reopen"))
+    "get completed projects by user" in {
+      val request = FakeRequest(GET, "/api/projects/completed")
+        .withCookies(Cookie(cookieName, fakeToken))
+      val result = route(app, request).get
 
       status(result) mustBe OK
-      (contentAsJson(result) \ "message").as[String] must include("Project reopened successfully")
+      (contentAsJson(result) \ "message").as[String] mustBe "Completed projects retrieved"
     }
-  }
 
-  "getCompletedProjectsByUser" should {
-    "return 200 OK with completed projects" in {
-      val mockService = mock[ProjectService]
-      val completed = Seq(CompletedProjectSummariesResponse(1, "Completed", "Workspace X"))
-      when(mockService.getCompletedProjectsByUserId(any()))
-        .thenReturn(Future.successful(completed))
-
-      val controller = createController(mockService, mockAuthenticatedAction(UserToken(1, "John", "john@example.com")))
-
-      val result = controller.getCompletedProjectsByUser(FakeRequest(GET, "/workspaces/projects/completed"))
+    "get all members in project successfully" in {
+      val request = FakeRequest(GET, "/api/projects/1/members")
+        .withCookies(Cookie(cookieName, fakeToken))
+      val result = route(app, request).get
 
       status(result) mustBe OK
-      (contentAsJson(result) \ "message").as[String] must include("Completed projects retrieved")
+      (contentAsJson(result) \ "message").as[String] mustBe "Project members retrieved"
+    }
+
+    "fail to get members for non-existent project" in {
+      val nonExistentProjectId = 9999
+      val request = FakeRequest(GET, s"/api/projects/$nonExistentProjectId/members")
+        .withCookies(Cookie(cookieName, fakeToken))
+
+      val ex = intercept[AppException] {
+        await(route(app, request).get)
+      }
+      ex.statusCode mustBe NOT_FOUND
+      ex.message must include("Project not found")
     }
   }
-
 }

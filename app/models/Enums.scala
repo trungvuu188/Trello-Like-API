@@ -48,6 +48,20 @@ object Enums {
   object TaskPriority extends Enumeration {
     type TaskPriority = Value
     val LOW, MEDIUM, HIGH = Value
+
+    implicit val format: Format[Value] = new Format[Value] {
+      def writes(o: Value): JsValue = JsString(o.toString)
+      def reads(json: JsValue): JsResult[Value] = json match {
+        case JsString(s) =>
+          try {
+            JsSuccess(TaskPriority.withName(s))
+          } catch {
+            case _: NoSuchElementException =>
+              JsError(s"Invalid TaskPriority: $s")
+          }
+        case _ => JsError("String value expected for TaskPriority")
+      }
+    }
   }
 
   object NotificationType extends Enumeration {
@@ -66,6 +80,16 @@ object Enums {
     val Private: Value = Value("private")
     val Workspace: Value = Value("workspace")
     val Public: Value = Value("public")
+  }
+
+  object ColumnStatus extends Enumeration {
+    type ColumnStatus = Value
+    val active, archived, deleted = Value
+  }
+
+  object TaskStatus extends Enumeration {
+    type TaskStatus = Value
+    val active, archived, deleted = Value
   }
 
 }
