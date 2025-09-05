@@ -701,6 +701,62 @@ paths:
               example:
                 message: "Workspace not found"
 
+  /projects/{projectId}:
+    get:
+      tags:
+        - Projects
+      summary: Get project by ID
+      description: Retrieves a specific project by its ID
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: Project ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ProjectResponse'
+              example:
+                message: "Project retrieved"
+                data:
+                  - id: 1
+                    name: "My Project"
+                    status: "active"
+
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project not found"
+
 
   /projects/{projectId}/complete:
     patch:
@@ -1375,6 +1431,132 @@ paths:
               example:
                 message: "Column not found"
 
+  /columns/{columnId}/position:
+    patch:
+      tags:
+        - Columns
+      summary: Update column position
+      description: Updates the position of a specific column in a project
+      parameters:
+        - in: path
+          name: columnId
+          required: true
+          description: Column ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateColumnPositionRequest'
+      responses:
+        '200':
+          description: Column position updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column position updated successfully"
+
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Validation failed"
+                errors:
+                  - field: "position"
+                    message: "Position must be at least 1"
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Column not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Column is not found or not active"
+
+
+  /projects/{projectId}/columns/archived:
+   get:
+      tags:
+        - Columns
+      summary: Get archived columns in project
+      description: Retrieves all archived columns in the specified project along with their tasks
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          description: Project ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Archived columns retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ColumnSummariesResponse'
+              example:
+                message: "Archived columns retrieved"
+                data:
+                - id: 2
+                  name: "Done"
+                  position: 3
+                - id: 3
+                  name: "Archived"
+                  position: 4
+
+        '401':
+          description: Unauthenticated request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Authentication required"
+
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+              example:
+                message: "Project not found"
+
+
+  # Task endpoints
   /columns/{columnId}/tasks:
     post:
       tags:
@@ -1451,7 +1633,7 @@ paths:
               example:
                 message: "Column with ID 1 does not exist or is not active"
         '409':
-          description: Task name already exists
+          description: Task position already exists
           content:
             application/json:
               schema:
@@ -1459,7 +1641,7 @@ paths:
                   - $ref: '#/components/schemas/ApiResponse'
                   - type: object
               example:
-                message: "Task name already exists in the column"
+                message: "Task position already exists in the column"
 
   /tasks/{taskId}:
     patch:
@@ -1912,12 +2094,18 @@ components:
       type: object
       required:
         - name
+        - position
       properties:
         name:
           type: string
           minLength: 1
           description: Task name
           example: "Task 1"
+        position:
+          type: number
+          minimum: 1
+          description: Position of the task in the column
+          example: 1
 
     TaskPriority:
       type: string
@@ -1964,6 +2152,17 @@ components:
           type: boolean
           description: Indicates if the task is completed
           example: false
+
+    UpdateColumnPositionRequest:
+        type: object
+        required:
+          - position
+        properties:
+          position:
+            type: integer
+            minimum: 1
+            description: New position of the column in the project board
+            example: 2
 
 
     # Response schemas
