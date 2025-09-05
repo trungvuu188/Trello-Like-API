@@ -1,7 +1,7 @@
 package repositories
 
-import db.MyPostgresProfile.api.taskStatusTypeMapper
-import models.Enums.TaskStatus
+import db.MyPostgresProfile.api.{columnStatusTypeMapper, projectStatusTypeMapper, taskStatusTypeMapper}
+import models.Enums.{ColumnStatus, ProjectStatus, TaskStatus}
 import models.entities.Task
 import models.tables.TaskTable
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -9,6 +9,7 @@ import slick.jdbc.JdbcProfile
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import models.tables.TableRegistry.{columns, projects, tasks, userProjects}
 
 @Singleton
 class TaskRepository@Inject()(
@@ -16,28 +17,31 @@ class TaskRepository@Inject()(
                              )(implicit ec: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
   import profile.api._
 
-  private val tasks = TableQuery[TaskTable]
-
   def create(task: Task): DBIO[Int] =
     tasks returning tasks.map(_.id) += task
 
-  def getMaxPosition(columnId: Int): DBIO[Int] = {
-    tasks.filter(t => t.columnId === columnId && t.status === TaskStatus.active)
-      .map(_.position)
-      .max
-      .result
-      .map(_.getOrElse(0))
-  }
-
-  def findByNameAndActiveTrueInColumn(name: String, columnId: Int): DBIO[Option[Task]] = {
+  def existsByPositionAndActiveTrueInColumn(position: Int, columnId: Int): DBIO[Boolean] = {
     tasks
-      .filter(t => t.name === name && t.columnId === columnId && t.status === TaskStatus.active)
-      .result.headOption
+      .filter(t => t.position === position && t.columnId === columnId && t.status === TaskStatus.active)
+      .exists
+      .result
   }
 
-  def findById(id: Int): DBIO[Option[Task]] = {
-    tasks.filter(_.id === id).result.headOption
+  def findTaskIfUserInProject(taskId: Int, userId: Int): DBIO[Option[Task]] = {
+    val query = (for {
+      (((t, c), p), up) <- tasks
+        .join(columns).on(_.columnId === _.id)
+        .join(projects).on { case ((t, c), p) => c.projectId === p.id }
+        .join(userProjects).on { case (((t, c), p), up) => p.id === up.projectId }
+      if t.id === taskId &&
+        c.status === ColumnStatus.active &&
+        p.status === ProjectStatus.active &&
+        up.userId === userId
+    } yield t)
+
+    query.result.headOption
   }
+
 
   def update(task: Task): DBIO[Int] = {
     tasks.filter(_.id === task.id).update(task)

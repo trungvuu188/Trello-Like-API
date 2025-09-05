@@ -8,6 +8,7 @@ object TableRegistry {
   lazy val workspaces = TableQuery[WorkspaceTable]
   lazy val userWorkspaces = TableQuery[UserWorkspaceTable]
   lazy val projects = TableQuery[ProjectTable]
+  lazy val userProjects = TableQuery[UserProjectTable]
   lazy val columns = TableQuery[ColumnTable]
   lazy val tasks = TableQuery[TaskTable]
   lazy val checklists = TableQuery[ChecklistTable]

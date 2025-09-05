@@ -28,7 +28,7 @@ class TaskController @Inject()(
       handleJsonValidation[CreateTaskRequest](request.body) {
         createColumnDto =>
           taskService
-            .createNewTask(createColumnDto.name, columnId, createdBy)
+            .createNewTask(createColumnDto, columnId, createdBy)
             .map { taskId =>
               Created(
                 Json.toJson(

@@ -7,7 +7,7 @@ import dto.response.task.TaskSummaryResponse
 import models.Enums.ColumnStatus.ColumnStatus
 import models.Enums.{ColumnStatus, ProjectStatus, TaskStatus}
 import models.entities.Column
-import models.tables.TableRegistry.{columns, projects, tasks}
+import models.tables.TableRegistry.{columns, projects, tasks, userProjects}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 
@@ -97,6 +97,20 @@ class ColumnRepository @Inject()(
       .filter(c => c.id === columnId)
       .result
       .headOption
+  }
+
+  def findColumnIfUserInProject(columnId: Int, userId: Int): DBIO[Option[Column]] = {
+    val query = for {
+      ((c, p), up) <- columns
+        .join(projects).on(_.projectId === _.id)
+        .join(userProjects).on { case ((c, p), up) => p.id === up.projectId }
+      if c.id === columnId &&
+        c.status === ColumnStatus.active &&
+        p.status === ProjectStatus.active &&
+        up.userId === userId
+    } yield c
+
+    query.result.headOption
   }
 
 }

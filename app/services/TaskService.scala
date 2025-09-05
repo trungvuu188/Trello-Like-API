@@ -1,6 +1,6 @@
 package services
 
-import dto.request.task.UpdateTaskRequest
+import dto.request.task.{CreateTaskRequest, UpdateTaskRequest}
 import dto.response.task.TaskDetailResponse
 import exception.AppException
 import mappers.TaskMapper
@@ -19,35 +19,39 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class TaskService @Inject()(taskRepository: TaskRepository,
                             columnRepository: ColumnRepository,
-                            projectRepository: ProjectRepository,
                             protected val dbConfigProvider: DatabaseConfigProvider
 )(implicit ec: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile]  {
 
   import profile.api._
 
-  def createNewTask(taskName: String, columnId: Int, createdBy: Int): Future[Int] = {
+  def createNewTask(request: CreateTaskRequest, columnId: Int, createdBy: Int): Future[Int] = {
     val action = for {
-      _ <- verifyColumnAndUserProjectAccess(columnId, createdBy)
-
-      existByName <- taskRepository.findByNameAndActiveTrueInColumn(taskName, columnId)
-      _ <- existByName match {
-        case Some(_) =>
-          DBIO.failed(AppException(
-            message = s"Task name already exists in the column",
-            statusCode = Status.CONFLICT)
-          )
-        case None => DBIO.successful(())
+      columnOpt <- columnRepository.findColumnIfUserInProject(columnId, createdBy)
+      _ <- columnOpt match {
+        case Some(_) => DBIO.successful()
+        case _ => DBIO.failed(AppException(
+          message = s"Column with ID $columnId does not exist or is not active",
+          statusCode = Status.NOT_FOUND)
+        )
       }
 
-      maxPosition <- taskRepository.getMaxPosition(columnId)
+      existByPosition <- taskRepository.existsByPositionAndActiveTrueInColumn(request.position, columnId)
+      _ <- if (existByPosition) {
+        DBIO.failed(AppException(
+          message = "Task position already exists in the column",
+          statusCode = Status.CONFLICT)
+        )
+      } else {
+        DBIO.successful(())
+      }
 
       taskId <- {
         val newTask = Task(
-          name = taskName,
+          name = request.name,
           columnId = columnId,
           createdBy = Some(createdBy),
           updatedBy = Some(createdBy),
-          position = Some(maxPosition + 1)
+          position = Some(request.position)
         )
         taskRepository.create(newTask)
       }
@@ -65,16 +69,6 @@ class TaskService @Inject()(taskRepository: TaskRepository,
           message = s"Task with ID $taskId does not exist or is not active",
           statusCode = Status.NOT_FOUND)
         )
-      }
-
-      existByName <- taskRepository.findByNameAndActiveTrueInColumn(req.name, task.columnId)
-      _ <- existByName match {
-        case Some(t) if t.id.get != taskId =>
-          DBIO.failed(AppException(
-            message = s"Task name already exists in the column",
-            statusCode = Status.CONFLICT)
-          )
-        case _ => DBIO.successful(())
       }
 
       updatedTask = task.copy(
@@ -163,7 +157,7 @@ class TaskService @Inject()(taskRepository: TaskRepository,
 
   private def getTaskById(taskId: Int, userId: Int): DBIO[Option[Task]] = {
     for {
-      taskOpt <- taskRepository.findById(taskId)
+      taskOpt <- taskRepository.findTaskIfUserInProject(taskId, userId)
       task <- taskOpt match {
         case Some(t) => DBIO.successful(Some(t))
         case _ => DBIO.failed(AppException(
@@ -171,36 +165,7 @@ class TaskService @Inject()(taskRepository: TaskRepository,
           statusCode = Status.NOT_FOUND)
         )
       }
-      _ <- task match {
-        case Some(t) => verifyColumnAndUserProjectAccess(t.columnId, userId).map(_ => ())
-      }
     } yield task
   }
-
-  private def verifyColumnAndUserProjectAccess(columnId: Int, userId: Int): DBIO[Column] = {
-    for {
-      columnOpt <- columnRepository.findById(columnId)
-      column <- columnOpt match {
-        case Some(col) if col.status == ColumnStatus.active => DBIO.successful(col)
-        case _ => DBIO.failed(AppException(
-          message = s"Column with ID $columnId does not exist or is not active",
-          statusCode = Status.NOT_FOUND)
-        )
-      }
-
-      // Check if user is part of the active project
-      existsUserInActiveProject <- projectRepository.isUserInActiveProject(userId, column.projectId)
-      _ <- if (existsUserInActiveProject) {
-        DBIO.successful(())
-      } else {
-        DBIO.failed(AppException(
-          message = s"Project is inactive or user is not a member of the project",
-          statusCode = Status.FORBIDDEN)
-        )
-      }
-    } yield column
-  }
-
-
 
 }

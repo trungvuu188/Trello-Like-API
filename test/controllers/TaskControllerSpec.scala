@@ -73,7 +73,7 @@ class TaskControllerSpec
   "TaskController" should {
 
     "create task successfully" in {
-      val body = Json.toJson(CreateTaskRequest("Task 1"))
+      val body = Json.toJson(CreateTaskRequest("Task 1", 1))
       val request = FakeRequest(POST, "/api/columns/1/tasks")
         .withCookies(Cookie(cookieName, fakeToken))
         .withBody(body)
@@ -86,8 +86,8 @@ class TaskControllerSpec
       )
     }
 
-    "fail when creating task with duplicate name in same column" in {
-      val body = Json.toJson(CreateTaskRequest("Task 1"))
+    "fail when creating task with duplicate position in same column" in {
+      val body = Json.toJson(CreateTaskRequest("Task 1", 1))
       val request = FakeRequest(POST, "/api/columns/1/tasks")
         .withCookies(Cookie(cookieName, fakeToken))
         .withBody(body)
@@ -98,7 +98,7 @@ class TaskControllerSpec
       }
 
       ex.statusCode mustBe CONFLICT
-      ex.message must include("Task name already exists in the column")
+      ex.message must include("Task position already exists in the column")
     }
 
     "update task successfully" in {
