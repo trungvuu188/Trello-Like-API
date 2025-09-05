@@ -35,10 +35,12 @@ PATCH   /api/projects/:projectId/delete     controllers.ProjectController.delete
 PATCH   /api/projects/:projectId/reopen     controllers.ProjectController.reopenProject(projectId: Int)
 GET    /api/projects/completed       controllers.ProjectController.getCompletedProjectsByUser
 GET    /api/projects/:projectId/members        controllers.ProjectController.getAllMembersInProject(projectId: Int)
+GET    /api/projects/:projectId        controllers.ProjectController.getProjectById(projectId: Int)
 
 # Column routes
 POST   /api/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)
 GET    /api/projects/:projectId/columns    controllers.ColumnController.getAll(projectId: Int)
+GET    /api/projects/:projectId/columns/archived    controllers.ColumnController.getArchivedColumns(projectId: Int)
 PATCH  /api/projects/:projectId/columns/:columnId   controllers.ColumnController.update(projectId: Int, columnId: Int)
 PATCH   /api/columns/:columnId/archive    controllers.ColumnController.archive(columnId: Int)
 PATCH   /api/columns/:columnId/restore    controllers.ColumnController.restore(columnId: Int)

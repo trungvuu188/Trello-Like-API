@@ -4,12 +4,12 @@ import dto.request.task.{CreateTaskRequest, UpdateTaskRequest}
 import dto.response.task.TaskDetailResponse
 import exception.AppException
 import mappers.TaskMapper
-import models.Enums.{ColumnStatus, TaskStatus}
+import models.Enums.TaskStatus
 import models.Enums.TaskStatus.TaskStatus
-import models.entities.{Column, Task}
+import models.entities.Task
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.http.Status
-import repositories.{ColumnRepository, ProjectRepository, TaskRepository}
+import repositories.{ColumnRepository, TaskRepository}
 import slick.jdbc.JdbcProfile
 
 import java.time.Instant

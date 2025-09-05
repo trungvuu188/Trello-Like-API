@@ -1,6 +1,6 @@
 package controllers
 
-import dto.request.column.{CreateColumnRequest, UpdateColumnRequest}
+import dto.request.column.{CreateColumnRequest, UpdateColumnPositionRequest, UpdateColumnRequest}
 import exception.AppException
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
@@ -12,13 +12,7 @@ import play.api.mvc.Cookie
 import play.api.test.Helpers._
 import play.api.test._
 import play.api.{Application, Configuration}
-import services.{
-  ColumnService,
-  JwtService,
-  ProjectService,
-  UserToken,
-  WorkspaceService
-}
+import services.{ColumnService, JwtService, ProjectService, UserToken, WorkspaceService}
 
 class ColumnControllerSpec
     extends PlaySpec
