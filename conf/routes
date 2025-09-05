@@ -40,6 +40,7 @@ GET    /api/projects/:projectId        controllers.ProjectController.getProjectB
 # Column routes
 POST   /api/projects/:projectId/columns    controllers.ColumnController.create(projectId: Int)
 GET    /api/projects/:projectId/columns    controllers.ColumnController.getAll(projectId: Int)
+GET    /api/projects/:projectId/columns/archived    controllers.ColumnController.getArchivedColumns(projectId: Int)
 PATCH  /api/projects/:projectId/columns/:columnId   controllers.ColumnController.update(projectId: Int, columnId: Int)
 PATCH   /api/columns/:columnId/archive    controllers.ColumnController.archive(columnId: Int)
 PATCH   /api/columns/:columnId/restore    controllers.ColumnController.restore(columnId: Int)

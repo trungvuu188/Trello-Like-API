@@ -165,7 +165,7 @@ class ProjectService @Inject()(
   def getProjectById(projectId: Int,
                      userId: Int): Future[Option[ProjectResponse]] = {
     val action = for {
-      isUserInActiveProject <- projectRepository.isUserInActiveProject(
+      isUserInActiveProject <- projectRepository.isUserInProject(
         userId,
         projectId
       )

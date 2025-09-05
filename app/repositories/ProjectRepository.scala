@@ -86,6 +86,12 @@ class ProjectRepository @Inject()(
     } yield up).exists.result
   }
 
+  def isUserInProject(userId: Int, projectId: Int): DBIO[Boolean] = {
+    (for {
+      up <- userProjects if up.userId === userId && up.projectId === projectId
+    } yield up).exists.result
+  }
+
   def getAllMembersInProject(projectId: Int): DBIO[Seq[UserInProjectResponse]] = {
     (for {
       up <- userProjects if up.projectId === projectId
