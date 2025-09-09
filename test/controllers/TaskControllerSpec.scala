@@ -50,7 +50,6 @@ class TaskControllerSpec
   override def beforeAll(): Unit = {
     val workspaceService = inject[WorkspaceService]
     val projectService = inject[ProjectService]
-    val columnService = inject[ColumnService]
 
     await(
       workspaceService.createWorkspace(
@@ -60,14 +59,13 @@ class TaskControllerSpec
     )
 
     await(
+      // create project with default columns
       projectService.createProject(
         dto.request.project.CreateProjectRequest("Project test"),
         1,
         1
       )
     )
-
-    await(columnService.createColumn(CreateColumnRequest("Column 1", 1), 1, 1))
   }
 
   "TaskController" should {

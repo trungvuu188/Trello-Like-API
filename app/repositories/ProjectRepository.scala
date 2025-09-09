@@ -5,8 +5,8 @@ import dto.response.project.{CompletedProjectSummariesResponse, ProjectResponse,
 import dto.response.user.UserInProjectResponse
 import models.Enums.ProjectStatus.ProjectStatus
 import models.Enums.{ProjectStatus, UserProjectRole}
-import models.entities.{Project, UserProject}
-import models.tables.TableRegistry.users
+import models.entities.{Column, Project, UserProject}
+import models.tables.TableRegistry.{columns, users}
 import models.tables.{ProjectTable, UserProjectTable, WorkspaceTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
@@ -30,13 +30,19 @@ class ProjectRepository @Inject()(
     for {
       projectId <- (projects returning projects.map(_.id)) += project
 
-      userProject = UserProject(
-        userId = ownerId,
-        projectId = projectId,
-        role = UserProjectRole.owner,
-        joinedAt = Instant.now()
+      _ <- DBIO.seq(
+        userProjects += UserProject(
+          userId = ownerId,
+          projectId = projectId,
+          role = UserProjectRole.owner,
+          joinedAt = Instant.now()
+        ),
+        columns ++= Seq(
+          Column(projectId = projectId, name = "To Do", position = 1),
+          Column(projectId = projectId, name = "In Progress", position = 1000),
+          Column(projectId = projectId, name = "Done", position = 2000)
+        )
       )
-      _ <- userProjects += userProject
     } yield projectId
   }
 

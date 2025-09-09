@@ -59,14 +59,13 @@ class ColumnControllerSpec
     )
 
     await(
+      // Create a project with default columns
       projectService.createProject(
         dto.request.project.CreateProjectRequest("Project test"),
         1,
         1
       )
     )
-
-    await(columnService.createColumn(CreateColumnRequest("Column 1", 1), 1, 1))
   }
 
   "ColumnController" should {
