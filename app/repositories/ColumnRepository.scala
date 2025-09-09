@@ -2,7 +2,7 @@ package repositories
 
 import db.MyPostgresProfile.api.{columnStatusTypeMapper, projectStatusTypeMapper, taskStatusTypeMapper}
 import dto.request.column.UpdateColumnRequest
-import dto.response.column.ColumnWithTasksResponse
+import dto.response.column.{ColumnSummariesResponse, ColumnWithTasksResponse}
 import dto.response.task.TaskSummaryResponse
 import models.Enums.ColumnStatus.ColumnStatus
 import models.Enums.{ColumnStatus, ProjectStatus, TaskStatus}
@@ -111,6 +111,19 @@ class ColumnRepository @Inject()(
     } yield c
 
     query.result.headOption
+  }
+
+  def findArchivedColumnsByProjectId(
+    projectId: Int
+  ): DBIO[Seq[ColumnSummariesResponse]] = {
+    columns
+      .filter(
+        c => c.projectId === projectId && c.status === ColumnStatus.archived
+      )
+      .sortBy(_.updatedAt.desc)
+      .map(c => (c.id, c.name, c.position))
+      .result
+      .map(_.map((ColumnSummariesResponse.apply _).tupled))
   }
 
 }

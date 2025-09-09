@@ -1,7 +1,7 @@
 package services
 
 import dto.request.column.{CreateColumnRequest, UpdateColumnPositionRequest, UpdateColumnRequest}
-import dto.response.column.ColumnWithTasksResponse
+import dto.response.column.{ColumnSummariesResponse, ColumnWithTasksResponse}
 import exception.AppException
 import models.Enums.ColumnStatus
 import models.Enums.ColumnStatus.ColumnStatus
@@ -174,5 +174,26 @@ class ColumnService @Inject()(
     } yield updatedRows
 
     db.run(action)
+  }
+
+  def getArchivedColumns(projectId: Int, userId: Int): Future[Seq[ColumnSummariesResponse]] = {
+    val find = for {
+      isUserInActiveProject <- projectRepository.isUserInActiveProject(
+        userId,
+        projectId
+      )
+      result <- if (isUserInActiveProject) {
+        columnRepository.findArchivedColumnsByProjectId(projectId)
+      } else {
+        DBIO.failed(
+          AppException(
+            message = s"Project not found",
+            statusCode = Status.NOT_FOUND
+          )
+        )
+      }
+    } yield result
+
+    db.run(find)
   }
 }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6763cacb-e8f3-40a7-a5a5-3589aae88c13",
+		"_postman_id": "77962f38-c1f6-4e67-b55d-4cc7b8e37edd",
 		"name": "Smart Taskhub API",
 		"description": "API documentation for Smart Taskhub, a task and project management application.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
@@ -916,7 +916,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1076,7 +1076,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1368,7 +1368,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1535,7 +1535,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1780,7 +1780,7 @@
 							"variable": [
 								{
 									"key": "workspaceId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Workspace ID"
 								}
 							]
@@ -1908,6 +1908,152 @@
 					]
 				},
 				{
+					"name": "Get project by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/:projectId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								":projectId"
+							],
+							"variable": [
+								{
+									"key": "projectId",
+									"value": "6621",
+									"description": "(Required) Project ID"
+								}
+							]
+						},
+						"description": "Retrieves a specific project by its ID"
+					},
+					"response": [
+						{
+							"name": "Projects retrieved successfully",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Project retrieved\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"My Project\",\n      \"status\": \"active\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Unauthenticated request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Authentication required\"\n}"
+						},
+						{
+							"name": "Project not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Project not found\"\n}"
+						}
+					]
+				},
+				{
 					"name": "Complete a project",
 					"request": {
 						"method": "PATCH",
@@ -1930,7 +2076,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2119,7 +2265,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2308,7 +2454,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -2555,7 +2701,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+							"raw": "{{baseUrl}}/url-preview?url=https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2565,7 +2711,7 @@
 							"query": [
 								{
 									"key": "url",
-									"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+									"value": "https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 									"description": "(Required) The URL to preview"
 								}
 							]
@@ -2584,7 +2730,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+									"raw": "{{baseUrl}}/url-preview?url=https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2594,7 +2740,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+											"value": "https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 											"description": "(Required) The URL to preview"
 										}
 									]
@@ -2647,7 +2793,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/url-preview?url=https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+									"raw": "{{baseUrl}}/url-preview?url=https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2657,7 +2803,7 @@
 									"query": [
 										{
 											"key": "url",
-											"value": "https://vJEEugLTROGNDpBUcIPk.lkubxRH4nXB",
+											"value": "https://qqAtIwoxKmmrVOZcoPNTTzvXvoj.obCCg-KD9.9j",
 											"description": "(Required) The URL to preview"
 										}
 									]
@@ -2770,7 +2916,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -3068,7 +3214,7 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								}
 							]
@@ -3233,12 +3379,12 @@
 							"variable": [
 								{
 									"key": "projectId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Project ID"
 								},
 								{
 									"key": "columnId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3499,7 +3645,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3688,7 +3834,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -3876,7 +4022,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -4037,6 +4183,419 @@
 							"body": "{\n  \"message\": \"Column not found\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Update column position",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"position\": 2\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/columns/:columnId/position",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"columns",
+								":columnId",
+								"position"
+							],
+							"variable": [
+								{
+									"key": "columnId",
+									"value": "6621",
+									"description": "(Required) Column ID"
+								}
+							]
+						},
+						"description": "Updates the position of a specific column in a project"
+					},
+					"response": [
+						{
+							"name": "Column position updated successfully",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"position\": 2\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/columns/:columnId/position",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"columns",
+										":columnId",
+										"position"
+									],
+									"variable": [
+										{
+											"key": "columnId"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Column position updated successfully\"\n}"
+						},
+						{
+							"name": "Invalid request data",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"position\": 2\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/columns/:columnId/position",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"columns",
+										":columnId",
+										"position"
+									],
+									"variable": [
+										{
+											"key": "columnId"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    {\n      \"field\": \"position\",\n      \"message\": \"Position must be at least 1\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Unauthenticated request",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"position\": 2\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/columns/:columnId/position",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"columns",
+										":columnId",
+										"position"
+									],
+									"variable": [
+										{
+											"key": "columnId"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Authentication required\"\n}"
+						},
+						{
+							"name": "Column not found",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"position\": 2\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/columns/:columnId/position",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"columns",
+										":columnId",
+										"position"
+									],
+									"variable": [
+										{
+											"key": "columnId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Column is not found or not active\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get archived columns in project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/:projectId/columns/archived",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								":projectId",
+								"columns",
+								"archived"
+							],
+							"variable": [
+								{
+									"key": "projectId",
+									"value": "6621",
+									"description": "(Required) Project ID"
+								}
+							]
+						},
+						"description": "Retrieves all archived columns in the specified project along with their tasks"
+					},
+					"response": [
+						{
+							"name": "Archived columns retrieved successfully",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId/columns/archived",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId",
+										"columns",
+										"archived"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Archived columns retrieved\",\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Done\",\n      \"position\": 3\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Archived\",\n      \"position\": 4\n    }\n  ]\n}"
+						},
+						{
+							"name": "Unauthenticated request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId/columns/archived",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId",
+										"columns",
+										"archived"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Authentication required\"\n}"
+						},
+						{
+							"name": "Project not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/projects/:projectId/columns/archived",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"projects",
+										":projectId",
+										"columns",
+										"archived"
+									],
+									"variable": [
+										{
+											"key": "projectId"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Project not found\"\n}"
+						}
+					]
 				}
 			],
 			"description": "Column management endpoints"
@@ -4060,7 +4619,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Task 1\"\n}",
+							"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 							"options": {
 								"raw": {
 									"headerFamily": "json",
@@ -4081,7 +4640,7 @@
 							"variable": [
 								{
 									"key": "columnId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Column ID"
 								}
 							]
@@ -4105,7 +4664,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4158,7 +4717,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4211,7 +4770,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4264,7 +4823,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4317,7 +4876,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4355,7 +4914,7 @@
 							"body": "{\n  \"message\": \"Column with ID 1 does not exist or is not active\"\n}"
 						},
 						{
-							"name": "Task name already exists",
+							"name": "Task position already exists",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -4370,7 +4929,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Task 1\"\n}",
+									"raw": "{\n  \"name\": \"Task 1\",\n  \"position\": 1\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -4405,7 +4964,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"Task name already exists in the column\"\n}"
+							"body": "{\n  \"message\": \"Task position already exists in the column\"\n}"
 						}
 					]
 				},
@@ -4445,7 +5004,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -4789,7 +5348,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -4973,7 +5532,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -5158,7 +5717,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Task ID"
 								}
 							]
@@ -5347,7 +5906,7 @@
 							"variable": [
 								{
 									"key": "taskId",
-									"value": "5717",
+									"value": "6621",
 									"description": "(Required) Task ID"
 								}
 							]
