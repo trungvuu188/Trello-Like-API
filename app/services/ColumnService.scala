@@ -6,10 +6,16 @@ import exception.AppException
 import models.Enums.ColumnStatus
 import models.Enums.ColumnStatus.ColumnStatus
 import models.entities.Column
+import models.websocket.OutMsg
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.http.Status
+import play.api.libs.json.Json
 import repositories.{ColumnRepository, ProjectRepository}
 import slick.jdbc.JdbcProfile
+import websocket.codecs.DomainCodecs._
+import websocket.codecs.WebSocketCodecs._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,8 +23,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class ColumnService @Inject()(
   columnRepository: ColumnRepository,
   projectRepository: ProjectRepository,
+  rooms: Rooms,
   protected val dbConfigProvider: DatabaseConfigProvider
-)(implicit ec: ExecutionContext)
+)(implicit mat: Materializer, ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
   import profile.api._
 
@@ -157,7 +164,7 @@ class ColumnService @Inject()(
         errorMsg = "Only archived columns can be deleted"
         )
 
-  def updatePosition(columnId: Int, request: UpdateColumnPositionRequest, userId: Int): Future[Int] = {
+  def updatePosition(boardId: Int, columnId: Int, request: UpdateColumnPositionRequest, userId: Int): Future[Int] = {
     val action = for {
       maybeStatus <- columnRepository.findStatusIfUserInProject(
         columnId,
@@ -173,7 +180,14 @@ class ColumnService @Inject()(
       }
     } yield updatedRows
 
-    db.run(action)
+    db.run(action).map { updatedRows ⇒
+        if(updatedRows > 0) {
+          val event: OutMsg = OutMsg.ColumnMoved(boardId, columnId, request.position)
+          val (queue, _) = rooms.room(boardId)
+          queue.offer(Json.stringify(Json.toJson(event)))
+        }
+      updatedRows
+    }
   }
 
   def getArchivedColumns(projectId: Int, userId: Int): Future[Seq[ColumnSummariesResponse]] = {
